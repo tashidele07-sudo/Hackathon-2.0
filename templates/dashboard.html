@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>VisionAttend - Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 font-sans text-slate-800">
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <header class="mb-8 flex justify-between items-center border-b pb-4">
+            <div>
+                <h1 class="text-3xl font-bold text-slate-900">VisionAttend Dashboard</h1>
+                <p class="text-slate-500">Automated CCTV Facial Verification & Attendance System</p>
+            </div>
+            <span class="bg-indigo-100 text-indigo-800 text-sm font-semibold px-4 py-2 rounded-full">
+                Date: {{ metrics.today }}
+            </span>
+        </header>
+
+        <!-- Metric Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <p class="text-xs font-bold uppercase text-slate-400">Total Enrolled</p>
+                <p class="text-3xl font-extrabold text-slate-800 mt-1">{{ metrics.total_students }}</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <p class="text-xs font-bold uppercase text-emerald-500">Verified Detected</p>
+                <p class="text-3xl font-extrabold text-emerald-600 mt-1">{{ metrics.detected }}</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <p class="text-xs font-bold uppercase text-rose-500">Not Detected</p>
+                <p class="text-3xl font-extrabold text-rose-600 mt-1">{{ metrics.not_detected }}</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <p class="text-xs font-bold uppercase text-amber-500">Pending Verification</p>
+                <p class="text-3xl font-extrabold text-amber-600 mt-1">{{ metrics.pending }}</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left Panel: Actions -->
+            <div class="space-y-6">
+                <!-- Register Student -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h2 class="text-lg font-bold mb-4 text-slate-900">Register Student & Face Data</h2>
+                    <form action="/api/students" method="post" enctype="multipart/form-data" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Full Name</label>
+                            <input type="text" name="name" required class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Roll Number</label>
+                            <input type="text" name="roll_number" required class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Face Photo</label>
+                            <input type="file" name="file" accept="image/*" required class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                        </div>
+                        <button type="submit" class="w-full bg-indigo-600 text-white font-semibold py-2 rounded-lg text-sm hover:bg-indigo-700 transition">Save Student Profile</button>
+                    </form>
+                </div>
+
+                <!-- Log Daily Attendance -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h2 class="text-lg font-bold mb-4 text-slate-900">Manual Attendance Entry</h2>
+                    <form action="/api/attendance/entry" method="post" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Select Student</label>
+                            <select name="student_id" required class="w-full border rounded-lg px-3 py-2 text-sm outline-none">
+                                {% for student in students %}
+                                <option value="{{ student.id }}">{{ student.name }} ({{ student.roll_number }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Date</label>
+                            <input type="date" name="date_str" value="{{ metrics.today }}" required class="w-full border rounded-lg px-3 py-2 text-sm outline-none">
+                        </div>
+                        <button type="submit" class="w-full bg-slate-800 text-white font-semibold py-2 rounded-lg text-sm hover:bg-slate-900 transition">Mark Initial Entry</button>
+                    </form>
+                </div>
+
+                <!-- Verify via CCTV Video -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h2 class="text-lg font-bold mb-4 text-slate-900">CCTV Video Verification</h2>
+                    <form action="/api/attendance/verify-cctv" method="post" enctype="multipart/form-data" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Target Date</label>
+                            <input type="date" name="date_str" value="{{ metrics.today }}" required class="w-full border rounded-lg px-3 py-2 text-sm outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Upload CCTV Footage (.mp4 / .avi)</label>
+                            <input type="file" name="cctv_file" accept="video/*" required class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100">
+                        </div>
+                        <button type="submit" class="w-full bg-amber-600 text-white font-semibold py-2 rounded-lg text-sm hover:bg-amber-700 transition">Process Video & Verify</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Right Panel: Combined Records Table -->
+            <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                <h2 class="text-lg font-bold mb-4 text-slate-900">Attendance Log & Verification Status</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-50 text-slate-500 text-xs uppercase border-b">
+                            <tr>
+                                <th class="py-3 px-4">Student</th>
+                                <th class="py-3 px-4">Visual Data</th>
+                                <th class="py-3 px-4">Date</th>
+                                <th class="py-3 px-4">Verification Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y">
+                            {% for log in attendances %}
+                            <tr class="hover:bg-slate-50">
+                                <td class="py-3 px-4">
+                                    <div class="font-semibold text-slate-800">{{ log.student.name }}</div>
+                                    <div class="text-xs text-slate-400">Roll: {{ log.student.roll_number }}</div>
+                                </td>
+                                <td class="py-3 px-4">
+                                    <img src="/static/{{ log.student.face_image_path }}" class="w-10 h-10 object-cover rounded-full border">
+                                </td>
+                                <td class="py-3 px-4 font-mono text-xs">{{ log.date }}</td>
+                                <td class="py-3 px-4">
+                                    {% if log.verification_status == 'DETECTED' %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
+                                            ✓ DETECTED
+                                        </span>
+                                    {% elif log.verification_status == 'NOT_DETECTED' %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-100 text-rose-800">
+                                            ✕ NOT DETECTED
+                                        </span>
+                                    {% else %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">
+                                            ⧖ PENDING
+                                        </span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center py-6 text-slate-400">No attendance entries recorded yet.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
