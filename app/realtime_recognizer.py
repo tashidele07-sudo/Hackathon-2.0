@@ -1,5 +1,6 @@
 import cv2
 import json
+import os
 import numpy as np
 import face_recognition
 import datetime
@@ -7,6 +8,8 @@ from sqlalchemy.orm import Session
 
 from app.database import SessionLocal
 from app.models import Student, Attendance
+from app.config import STORAGE_DIR
+from app.face_engine import extract_face_encoding
 
 
 def recognize_webcam_frame(frame_bytes: bytes, db: Session, target_date=None):
@@ -19,11 +22,19 @@ def recognize_webcam_frame(frame_bytes: bytes, db: Session, target_date=None):
     if frame is None:
         raise ValueError("The webcam frame could not be decoded.")
 
-    students = db.query(Student).filter(Student.face_encoding.isnot(None)).all()
+    students = db.query(Student).all()
     known_students = []
     for student in students:
         try:
-            known_students.append((student, np.array(json.loads(student.face_encoding))))
+            encoding_json = student.face_encoding
+            if not encoding_json:
+                stored_path = student.face_image_path or student.visual_info_path
+                if not stored_path:
+                    continue
+                if not os.path.isabs(stored_path):
+                    stored_path = os.path.join(STORAGE_DIR, os.path.basename(stored_path))
+                encoding_json = extract_face_encoding(stored_path, student.media_type or "image")
+            known_students.append((student, np.array(json.loads(encoding_json))))
         except (TypeError, json.JSONDecodeError, ValueError):
             continue
     if not known_students:

@@ -376,25 +376,24 @@
                         </div>
                         <div>
                             <h2 class="text-xl font-bold text-slate-900">CCTV Face Verification</h2>
-                            <p class="mt-1 text-sm text-slate-500">Upload CCTV footage to compare enrolled faces and update today’s attendance statuses.</p>
+                            <p class="mt-1 text-sm text-slate-500">Use this laptop webcam to verify faces against the enrolled student face data.</p>
                         </div>
                     </div>
-                    <form action="/api/attendance/verify-cctv" method="post" enctype="multipart/form-data" class="space-y-5">
+                    <div class="space-y-5">
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 mb-1">Target Date</label>
-                            <input type="date" name="date_str" value="{{ metrics.today }}" required class="w-full border rounded-lg px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-[#1E345B]">
+                            <input id="webcam-date" type="date" value="{{ metrics.today }}" required class="w-full border rounded-lg px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-[#1E345B]">
                         </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">CCTV Footage</label>
-                            <input type="file" name="cctv_file" accept="video/*" required class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100">
-                            <p class="mt-1 text-xs text-slate-500">Supported footage includes MP4 and AVI video files.</p>
+                        <div class="overflow-hidden rounded-xl border border-slate-200 bg-slate-950">
+                            <video id="webcam-preview" autoplay muted playsinline class="aspect-video w-full object-cover"></video>
                         </div>
                         <div class="flex items-center justify-between gap-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-600">
-                            <span>Detected faces become <strong class="text-emerald-700">Verified</strong>; missing faces become <strong class="text-rose-700">Proxy</strong>.</span>
-                            <span class="shrink-0 font-semibold text-amber-700">Pending until processed</span>
+                            <span id="webcam-status">Camera is off.</span>
+                            <span class="shrink-0 text-right font-semibold text-amber-700">Detected: <span id="webcam-detected-names">None</span></span>
                         </div>
-                        <button type="submit" class="w-full bg-[#1E345B] text-white font-semibold py-3 rounded-lg text-sm hover:bg-[#14233f] transition">Process Footage & Verify Students</button>
-                    </form>
+                        <p class="text-center text-xs text-slate-500">Verification starts automatically and finishes after the scan window. Students not seen by the camera are marked Proxy.</p>
+                        <canvas id="webcam-capture" hidden></canvas>
+                    </div>
                 </div>
             </section>
 
@@ -406,44 +405,49 @@
                             <h2 class="text-lg font-bold text-slate-900">Teaching & Operational Staff</h2>
                             <p class="text-sm text-slate-500">Staff directory and CCTV monitoring supervisors.</p>
                         </div>
-                        <button type="button" class="bg-slate-800 text-white text-xs font-semibold px-4 py-2 rounded-lg hover:bg-slate-900 transition">+ Add Staff Member</button>
+                        <button type="button" onclick="openStaffModal()" class="bg-slate-800 text-white text-xs font-semibold px-4 py-2 rounded-lg hover:bg-slate-900 transition">+ Add Staff Member</button>
                     </div>
 
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-sm">
-                            <thead class="bg-slate-50 text-slate-500 text-xs uppercase border-b">
-                                <tr>
-                                    <th class="py-3 px-4">Staff Name</th>
-                                    <th class="py-3 px-4">Position</th>
-                                    <th class="py-3 px-4">Department</th>
-                                    <th class="py-3 px-4">Contact</th>
-                                    <th class="py-3 px-4">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y text-slate-700">
-                                <tr class="hover:bg-slate-50">
-                                    <td class="py-3.5 px-4 font-semibold text-slate-800">Adeleke Maureen</td>
-                                    <td class="py-3.5 px-4">Senior Supervisor</td>
-                                    <td class="py-3.5 px-4">Computer Science</td>
-                                    <td class="py-3.5 px-4 font-mono text-xs">admin@antiproxy.local</td>
-                                    <td class="py-3.5 px-4"><span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">Active</span></td>
-                                </tr>
-                                <tr class="hover:bg-slate-50">
-                                    <td class="py-3.5 px-4 font-semibold text-slate-800">Hussain Ismail</td>
-                                    <td class="py-3.5 px-4">CCTV Operator</td>
-                                    <td class="py-3.5 px-4">Security Operations</td>
-                                    <td class="py-3.5 px-4 font-mono text-xs">+1 (555) 019-2834</td>
-                                    <td class="py-3.5 px-4"><span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">Active</span></td>
-                                </tr>
-                                <tr class="hover:bg-slate-50">
-                                    <td class="py-3.5 px-4 font-semibold text-slate-800">Asser Osman</td>
-                                    <td class="py-3.5 px-4">System Auditor</td>
-                                    <td class="py-3.5 px-4">IT Infrastructure</td>
-                                    <td class="py-3.5 px-4 font-mono text-xs">+1 (555) 014-9982</td>
-                                    <td class="py-3.5 px-4"><span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-600">Offline</span></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div id="staff-grid" class="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+                        <article class="staff-card rounded-xl border border-slate-200 bg-slate-50 p-5 transition hover:-translate-y-0.5 hover:border-[#1E345B]/40 hover:shadow-md">
+                            <div class="flex items-start justify-between gap-3">
+                                <div>
+                                    <h3 class="staff-name font-bold text-slate-900">Adeleke Maureen</h3>
+                                    <p class="staff-position mt-1 text-sm text-slate-500">Senior Supervisor</p>
+                                </div>
+                                <div class="flex items-center gap-2"><span class="staff-status rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800">Active</span><button type="button" onclick="editStaffMember(this.closest('.staff-card'))" class="text-xs font-semibold text-[#1E345B] hover:underline">Edit</button></div>
+                            </div>
+                            <dl class="mt-5 space-y-3 text-sm">
+                                <div class="flex items-start justify-between gap-4"><dt class="text-slate-400">Department</dt><dd class="staff-department text-right font-medium text-slate-700">Computer Science</dd></div>
+                                <div class="flex items-start justify-between gap-4"><dt class="text-slate-400">Contact</dt><dd class="staff-contact break-all text-right font-mono text-xs text-slate-700">admin@antiproxy.local</dd></div>
+                            </dl>
+                        </article>
+                        <article class="staff-card rounded-xl border border-slate-200 bg-slate-50 p-5 transition hover:-translate-y-0.5 hover:border-[#1E345B]/40 hover:shadow-md">
+                            <div class="flex items-start justify-between gap-3">
+                                <div>
+                                    <h3 class="staff-name font-bold text-slate-900">Hussain Ismail</h3>
+                                    <p class="staff-position mt-1 text-sm text-slate-500">CCTV Operator</p>
+                                </div>
+                                <div class="flex items-center gap-2"><span class="staff-status rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800">Active</span><button type="button" onclick="editStaffMember(this.closest('.staff-card'))" class="text-xs font-semibold text-[#1E345B] hover:underline">Edit</button></div>
+                            </div>
+                            <dl class="mt-5 space-y-3 text-sm">
+                                <div class="flex items-start justify-between gap-4"><dt class="text-slate-400">Department</dt><dd class="staff-department text-right font-medium text-slate-700">Security Operations</dd></div>
+                                <div class="flex items-start justify-between gap-4"><dt class="text-slate-400">Contact</dt><dd class="staff-contact text-right font-mono text-xs text-slate-700">+1 (555) 019-2834</dd></div>
+                            </dl>
+                        </article>
+                        <article class="staff-card rounded-xl border border-slate-200 bg-slate-50 p-5 transition hover:-translate-y-0.5 hover:border-[#1E345B]/40 hover:shadow-md">
+                            <div class="flex items-start justify-between gap-3">
+                                <div>
+                                    <h3 class="staff-name font-bold text-slate-900">Asser Osman</h3>
+                                    <p class="staff-position mt-1 text-sm text-slate-500">System Auditor</p>
+                                </div>
+                                <div class="flex items-center gap-2"><span class="staff-status rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">Offline</span><button type="button" onclick="editStaffMember(this.closest('.staff-card'))" class="text-xs font-semibold text-[#1E345B] hover:underline">Edit</button></div>
+                            </div>
+                            <dl class="mt-5 space-y-3 text-sm">
+                                <div class="flex items-start justify-between gap-4"><dt class="text-slate-400">Department</dt><dd class="staff-department text-right font-medium text-slate-700">IT Infrastructure</dd></div>
+                                <div class="flex items-start justify-between gap-4"><dt class="text-slate-400">Contact</dt><dd class="staff-contact text-right font-mono text-xs text-slate-700">+1 (555) 014-9982</dd></div>
+                            </dl>
+                        </article>
                     </div>
                 </div>
             </section>
@@ -478,6 +482,50 @@
     </main>
 
     <!-- MODALS SECTION -->
+
+    <!-- Add Staff Member Modal -->
+    <div id="staff-modal" hidden class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4" role="dialog" aria-modal="true" aria-labelledby="staff-modal-title">
+        <div class="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl">
+            <div class="flex items-start justify-between gap-4 border-b border-slate-200 pb-4">
+                <div>
+                    <h2 id="staff-modal-title" class="text-lg font-bold text-slate-900">Add Staff Member</h2>
+                    <p class="mt-1 text-sm text-slate-500">Create a staff profile for the directory.</p>
+                </div>
+                <button type="button" onclick="closeStaffModal()" class="text-xl font-bold text-slate-400 hover:text-slate-700" aria-label="Close add staff form">&times;</button>
+            </div>
+            <form id="staff-form" onsubmit="addStaffMember(event)" class="mt-5 space-y-4">
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div>
+                        <label for="staff-name" class="mb-1 block text-xs font-semibold text-slate-600">Full Name</label>
+                        <input id="staff-name" name="name" required class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-[#1E345B]">
+                    </div>
+                    <div>
+                        <label for="staff-position" class="mb-1 block text-xs font-semibold text-slate-600">Position</label>
+                        <input id="staff-position" name="position" required class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-[#1E345B]">
+                    </div>
+                    <div>
+                        <label for="staff-department" class="mb-1 block text-xs font-semibold text-slate-600">Department</label>
+                        <input id="staff-department" name="department" required class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-[#1E345B]">
+                    </div>
+                    <div>
+                        <label for="staff-contact" class="mb-1 block text-xs font-semibold text-slate-600">Contact</label>
+                        <input id="staff-contact" name="contact" required class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-[#1E345B]">
+                    </div>
+                </div>
+                <div>
+                    <label for="staff-status" class="mb-1 block text-xs font-semibold text-slate-600">Status</label>
+                    <select id="staff-status" name="status" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-[#1E345B]">
+                        <option>Active</option>
+                        <option>Offline</option>
+                    </select>
+                </div>
+                <div class="flex justify-end gap-3 border-t border-slate-200 pt-4">
+                    <button type="button" onclick="closeStaffModal()" class="rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">Cancel</button>
+                    <button id="staff-submit-button" type="submit" class="rounded-lg bg-[#1E345B] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#14233f]">Add Staff Member</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <!-- Admin Account Information Modal -->
     <div id="admin-modal" hidden class="fixed inset-0 z-50 bg-slate-950/60 p-4 flex items-center justify-center" role="dialog" aria-modal="true">
@@ -584,6 +632,7 @@
             }
 
             if (tabId === 'students') switchStudentStep('register');
+            if (tabId === 'cctv') startWebcamVerification();
 
             // Update Header Title dynamically
             const titleMap = {
@@ -685,6 +734,140 @@
             }
         }
 
+        let webcamStream = null;
+        let webcamScanTimer = null;
+        let webcamCompletionTimer = null;
+        let webcamFinalizing = false;
+        const webcamDetectedNames = new Map();
+        const webcamVerificationWindow = 10000;
+
+        async function startWebcamVerification() {
+            if (webcamStream) return;
+
+            const dateInput = document.getElementById('webcam-date');
+            const status = document.getElementById('webcam-status');
+            try {
+                webcamStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                document.getElementById('webcam-preview').srcObject = webcamStream;
+                dateInput.disabled = true;
+                status.textContent = 'Camera is running. Automatic verification will finish in 10 seconds.';
+                webcamScanTimer = window.setInterval(captureWebcamFrame, 1500);
+                webcamCompletionTimer = window.setTimeout(finishWebcamVerification, webcamVerificationWindow);
+                captureWebcamFrame();
+            } catch (error) {
+                status.textContent = 'Camera access was denied or is unavailable.';
+            }
+        }
+
+        async function captureWebcamFrame() {
+            if (!webcamStream) return;
+            const video = document.getElementById('webcam-preview');
+            if (!video.videoWidth) return;
+
+            const canvas = document.getElementById('webcam-capture');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+            const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.85));
+            if (!blob) return;
+
+            const formData = new FormData();
+            formData.append('date_str', document.getElementById('webcam-date').value);
+            formData.append('webcam_frame', blob, 'webcam-frame.jpg');
+            try {
+                const response = await fetch('/api/attendance/verify-webcam-frame', { method: 'POST', body: formData });
+                if (!response.ok) return;
+                const result = await response.json();
+                result.detected_students.forEach(student => webcamDetectedNames.set(student.id, student.name));
+                document.getElementById('webcam-detected-names').textContent = webcamDetectedNames.size
+                    ? Array.from(webcamDetectedNames.values()).join(', ')
+                    : 'None';
+                document.getElementById('webcam-status').textContent = webcamDetectedNames.size
+                    ? 'Face verification is active.'
+                    : 'Camera is running. Waiting for an enrolled face...';
+            } catch (error) {
+                document.getElementById('webcam-status').textContent = 'Unable to send the webcam frame.';
+            }
+        }
+
+        async function finishWebcamVerification() {
+            if (webcamFinalizing || !webcamStream) return;
+            webcamFinalizing = true;
+            if (webcamScanTimer) window.clearInterval(webcamScanTimer);
+            webcamScanTimer = null;
+            if (webcamCompletionTimer) window.clearTimeout(webcamCompletionTimer);
+            webcamCompletionTimer = null;
+            if (webcamStream) webcamStream.getTracks().forEach(track => track.stop());
+            webcamStream = null;
+            document.getElementById('webcam-status').textContent = 'Finalizing attendance statuses...';
+
+            const formData = new FormData();
+            formData.append('date_str', document.getElementById('webcam-date').value);
+            webcamDetectedNames.forEach((name, id) => formData.append('detected_student_ids', id));
+            try {
+                const response = await fetch('/api/attendance/complete-webcam-verify', { method: 'POST', body: formData });
+                const result = await response.json();
+                window.location.href = result.redirect_url;
+            } catch (error) {
+                document.getElementById('webcam-status').textContent = 'Could not finalize webcam verification.';
+                webcamFinalizing = false;
+            }
+        }
+
+        function openStaffModal() {
+            staffEditingCard = null;
+            document.getElementById('staff-modal-title').textContent = 'Add Staff Member';
+            document.getElementById('staff-submit-button').textContent = 'Add Staff Member';
+            document.getElementById('staff-form').reset();
+            document.getElementById('staff-modal').hidden = false;
+            document.getElementById('staff-name').focus();
+            document.body.classList.add('overflow-hidden');
+        }
+
+        let staffEditingCard = null;
+
+        function editStaffMember(card) {
+            staffEditingCard = card;
+            document.getElementById('staff-modal-title').textContent = 'Edit Staff Member';
+            document.getElementById('staff-submit-button').textContent = 'Save Changes';
+            document.getElementById('staff-name').value = card.querySelector('.staff-name').textContent;
+            document.getElementById('staff-position').value = card.querySelector('.staff-position').textContent;
+            document.getElementById('staff-department').value = card.querySelector('.staff-department').textContent;
+            document.getElementById('staff-contact').value = card.querySelector('.staff-contact').textContent;
+            document.getElementById('staff-status').value = card.querySelector('.staff-status').textContent;
+            document.getElementById('staff-modal').hidden = false;
+            document.getElementById('staff-name').focus();
+            document.body.classList.add('overflow-hidden');
+        }
+
+        function closeStaffModal() {
+            document.getElementById('staff-modal').hidden = true;
+            document.getElementById('staff-form').reset();
+            staffEditingCard = null;
+            document.body.classList.remove('overflow-hidden');
+        }
+
+        function addStaffMember(event) {
+            event.preventDefault();
+            const form = event.currentTarget;
+            const values = new FormData(form);
+            const status = values.get('status');
+            const card = staffEditingCard || document.createElement('article');
+            if (!staffEditingCard) {
+                card.className = 'staff-card rounded-xl border border-slate-200 bg-slate-50 p-5 transition hover:-translate-y-0.5 hover:border-[#1E345B]/40 hover:shadow-md';
+                card.innerHTML = '<div class="flex items-start justify-between gap-3"><div><h3 class="staff-name font-bold text-slate-900"></h3><p class="staff-position mt-1 text-sm text-slate-500"></p></div><div class="flex items-center gap-2"><span class="staff-status rounded-full px-2.5 py-1 text-xs font-semibold"></span><button type="button" onclick="editStaffMember(this.closest(\'.staff-card\'))" class="text-xs font-semibold text-[#1E345B] hover:underline">Edit</button></div></div><dl class="mt-5 space-y-3 text-sm"><div class="flex items-start justify-between gap-4"><dt class="text-slate-400">Department</dt><dd class="staff-department text-right font-medium text-slate-700"></dd></div><div class="flex items-start justify-between gap-4"><dt class="text-slate-400">Contact</dt><dd class="staff-contact break-all text-right font-mono text-xs text-slate-700"></dd></div></dl>';
+                document.getElementById('staff-grid').appendChild(card);
+            }
+            card.querySelector('.staff-name').textContent = values.get('name');
+            card.querySelector('.staff-position').textContent = values.get('position');
+            card.querySelector('.staff-department').textContent = values.get('department');
+            card.querySelector('.staff-contact').textContent = values.get('contact');
+            const statusBadge = card.querySelector('.staff-status');
+            statusBadge.textContent = status;
+            statusBadge.className = 'staff-status rounded-full px-2.5 py-1 text-xs font-semibold ' + (status === 'Active' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600');
+            closeStaffModal();
+        }
+
         // Admin Modal Functions
         function openAdminModal() {
             document.getElementById('admin-modal').hidden = false;
@@ -769,6 +952,7 @@
             closeDeleteConfirmation();
             closeLogoutConfirmation();
             closeAdminModal();
+            closeStaffModal();
         });
 
         const initialActiveTab = '{{ active_tab }}';

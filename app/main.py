@@ -357,6 +357,46 @@ def verify_webcam_frame(
     return JSONResponse({"detected_students": detected_students})
 
 
+@app.post("/api/attendance/complete-webcam-verify")
+def complete_webcam_verification(
+    request: Request,
+    date_str: str = Form(...),
+    detected_student_ids: list[int] = Form(default=[]),
+    db: Session = Depends(get_db),
+    _: None = Depends(require_admin),
+):
+    try:
+        target_date = datetime.date.fromisoformat(date_str)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Please provide a valid webcam date.")
+
+    students = db.query(Student).all()
+    detected_ids = set(detected_student_ids)
+    proxy_count = 0
+    for student in students:
+        attendance = db.query(Attendance).filter(
+            Attendance.student_id == student.id,
+            Attendance.date == target_date,
+        ).first()
+        if not attendance:
+            attendance = Attendance(student_id=student.id, date=target_date)
+            db.add(attendance)
+        if student.id not in detected_ids:
+            attendance.cctv_status = "not detected"
+            attendance.marked_status = "Absent"
+            attendance.verification_status = "NOT_DETECTED"
+            attendance.cctv_source_path = "browser-webcam"
+            proxy_count += 1
+
+    db.commit()
+    request.session["notification"] = {
+        "type": "warning" if proxy_count else "success",
+        "title": "Webcam verification complete",
+        "message": f"{proxy_count} student(s) marked as Proxy." if proxy_count else "All enrolled students were verified.",
+    }
+    return JSONResponse({"proxy_count": proxy_count, "redirect_url": "/dashboard?active_tab=attendance"})
+
+
 @app.post("/api/attendance/{attendance_id}/delete")
 def delete_attendance(
     attendance_id: int,
