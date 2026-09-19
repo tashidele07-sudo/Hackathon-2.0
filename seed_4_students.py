@@ -11,10 +11,10 @@ Base.metadata.create_all(bind=engine)
 
 # Define 4 student records matching your image files
 STUDENTS_TO_REGISTER = [
-    {"name": "Alice Smith", "roll_number": "101", "image_file": "student1.jpg"},
-    {"name": "Bob Jones", "roll_number": "102", "image_file": "student2.jpg"},
-    {"name": "Charlie Brown", "roll_number": "103", "image_file": "student3.jpg"},
-    {"name": "Diana Prince", "roll_number": "104", "image_file": "student4.jpg"},
+    {"name": "Alice Smith", "lcid": "101", "image_file": "student1.jpg"},
+    {"name": "Bob Jones", "lcid": "102", "image_file": "student2.jpg"},
+    {"name": "Charlie Brown", "lcid": "103", "image_file": "student3.jpg"},
+    {"name": "Diana Prince", "lcid": "104", "image_file": "student4.jpg"},
 ]
 
 def seed_database():
@@ -23,21 +23,21 @@ def seed_database():
 
     for data in STUDENTS_TO_REGISTER:
         source_img = data["image_file"]
-        roll = data["roll_number"]
+        lcid = data["lcid"]
 
         if not os.path.exists(source_img):
             print(f"[SKIP] Source image '{source_img}' not found.")
             continue
 
         # 1. Check if student already exists
-        existing = db.query(Student).filter(Student.roll_number == roll).first()
+        existing = db.query(Student).filter(Student.lcid == lcid).first()
         if existing:
             print(f"[EXISTS] Student Roll {roll} ({data['name']}) already in database.")
             continue
 
         # 2. Copy image to storage folder
         ext = source_img.split(".")[-1]
-        stored_filename = f"{roll}.{ext}"
+        stored_filename = f"{lcid}.{ext}"
         destination_path = os.path.join(STORAGE_DIR, stored_filename)
         shutil.copy(source_img, destination_path)
 
@@ -52,7 +52,7 @@ def seed_database():
         # 4. Save Student profile to Database
         student = Student(
             name=data["name"],
-            roll_number=roll,
+            lcid=lcid,
             face_image_path=stored_filename,
             face_encoding=encoding_json
         )

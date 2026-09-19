@@ -1,24 +1,37 @@
+# app/schemas.py
 from pydantic import BaseModel
-from typing import Optional
-from datetime import datetime
+from datetime import date
+from typing import Optional, List
 
-class StudentCreate(BaseModel):
-    roll_number: str
+class StudentBase(BaseModel):
     name: str
+    visual_info_path: str
+    media_type: str = "image"
 
-class AttendanceEntry(BaseModel):
-    student_id: int
-    date: str  # YYYY-MM-DD
+class StudentResponse(StudentBase):
+    id: int
+
+    class Config:
+        from_attributes = True
 
 class AttendanceResponse(BaseModel):
     id: int
     student_id: int
     student_name: str
-    roll_number: str
-    date: str
-    entry_time: datetime
-    verification_status: str
-    verification_time: Optional[datetime]
+    visual_info_path: str
+    date: date
+    marked_status: str
+    cctv_status: str
+    cctv_source_path: Optional[str] = None
 
     class Config:
         from_attributes = True
+
+class DashboardSummaryResponse(BaseModel):
+    total_students: int
+    marked_present: int
+    cctv_detected: int
+    date: date
+
+class CCTVVerifyRequest(BaseModel):
+    cctv_video_path: str

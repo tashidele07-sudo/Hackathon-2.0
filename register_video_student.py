@@ -9,7 +9,7 @@ from app.config import STORAGE_DIR
 
 Base.metadata.create_all(bind=engine)
 
-def register_student_from_video(video_path: str, name: str, roll_number: str):
+def register_student_from_video(video_path: str, name: str, lcid: str):
     if not os.path.exists(video_path):
         print(f"[ERROR] Video file not found at: {video_path}")
         return
@@ -17,9 +17,9 @@ def register_student_from_video(video_path: str, name: str, roll_number: str):
     db = SessionLocal()
 
     # Check if student already exists
-    existing = db.query(Student).filter(Student.roll_number == roll_number).first()
+    existing = db.query(Student).filter(Student.lcid == lcid).first()
     if existing:
-        print(f"[EXISTS] Student Roll {roll_number} ({name}) is already in the database.")
+        print(f"[EXISTS] Student LCID {lcid} ({name}) is already in the database.")
         db.close()
         return
 
@@ -32,7 +32,7 @@ def register_student_from_video(video_path: str, name: str, roll_number: str):
         return
 
     extracted_encoding = None
-    saved_image_filename = f"{roll_number}.jpg"
+    saved_image_filename = f"{lcid}.jpg"
     destination_img_path = os.path.join(STORAGE_DIR, saved_image_filename)
 
     frame_count = 0
@@ -73,7 +73,7 @@ def register_student_from_video(video_path: str, name: str, roll_number: str):
     # 1. Save Student to DB
     student = Student(
         name=name,
-        roll_number=roll_number,
+        lcid=lcid,
         face_image_path=saved_image_filename,
         face_encoding=encoding_json
     )
@@ -91,7 +91,7 @@ def register_student_from_video(video_path: str, name: str, roll_number: str):
     db.add(attendance)
     db.commit()
 
-    print(f"[SUCCESS] Registered {name} (Roll: {roll_number}) in Database!")
+    print(f"[SUCCESS] Registered {name} (LCID: {lcid}) in Database!")
     db.close()
 
 if __name__ == "__main__":
@@ -102,5 +102,5 @@ if __name__ == "__main__":
     register_student_from_video(
         video_path=video_file_path,
         name="Bashista Rana",
-        roll_number="13"
+        lcid="13"
     )
