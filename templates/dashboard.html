@@ -2,226 +2,519 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>VisionAttend - Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anti-Proxy Attendance</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         [hidden] { display: none !important; }
     </style>
 </head>
-<body class="bg-slate-100 font-sans text-slate-800">
-    <div class="max-w-7xl mx-auto px-4 py-8">
-        <header class="mb-8 flex justify-between items-center border-b pb-4">
-            <div>
-                <h1 class="text-3xl font-bold text-slate-900">VisionAttend Dashboard</h1>
-                <p class="text-slate-500">Automated CCTV Facial Verification & Attendance System</p>
+<body class="bg-[#F5F4F4] font-sans text-slate-800 min-h-screen flex">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 bg-[#F1FAEF] text-slate-300 flex flex-col justify-between shrink-0 min-h-screen sticky top-0 h-screen overflow-y-auto">
+        <div>
+            <!-- Project Brand Name Top Left -->
+            <div class="px-6 py-6 border-b border-slate-800 flex items-center gap-3">
+                <div class="h-9 w-9 rounded-xl bg-[#1E345B] text-white font-black flex items-center justify-center text-xl shadow-lg shadow-[#1E345B]/30">
+                    AP
+                </div>
+                <div>
+                    <h1 class="text-xl font-extrabold text-[#1E345B] tracking-wide">Anti-Proxy</h1>
+                    <p class="text-xs text-slate-400">AI Facial Verification</p>
+                </div>
             </div>
-            <div class="flex items-center gap-3">
-                <span class="bg-indigo-100 text-indigo-800 text-sm font-semibold px-4 py-2 rounded-full">
+
+            <!-- Navigation Links -->
+            <nav class="p-4 space-y-1.5">
+                <button type="button" id="nav-dashboard" onclick="switchTab('dashboard')" class="nav-link w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition bg-[#1E345B] text-white shadow-md shadow-[#1E345B]/20">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+                    Dashboard
+                </button>
+
+                <button type="button" id="nav-students" onclick="switchTab('students')" class="nav-link w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:bg-[#4779A1] hover:text-white transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0112 20.055a11.952 11.952 0 01-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/></svg>
+                    Students Detail
+                </button>
+
+                <button type="button" id="nav-attendance" onclick="switchTab('attendance')" class="nav-link w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:bg-[#4779A1] hover:text-white transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                    Attendance
+                </button>
+
+                <button type="button" id="nav-cctv" onclick="switchTab('cctv')" class="nav-link w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:bg-[#4779A1] hover:text-white transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                    CCTV
+                </button>
+
+                <button type="button" id="nav-staff" onclick="switchTab('staff')" class="nav-link w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:bg-[#4779A1] hover:text-white transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                    Staff
+                </button>
+            </nav>
+        </div>
+
+        <!-- Help / Support Link in Sidebar Bottom -->
+        <div class="p-4 border-t border-slate-800 space-y-1.5">
+            <button type="button" id="nav-support" onclick="switchTab('support')" class="nav-link w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:bg-[#4779A1] hover:text-white transition">
+                <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                Help & Support
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col min-w-0">
+        
+        <!-- Header Top Bar -->
+        <header class="bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between sticky top-0 z-30 shadow-sm">
+            <div>
+                <h2 id="page-title" class="text-xl font-bold text-slate-900">Dashboard Overview</h2>
+                <p class="text-xs text-slate-500">Automated CCTV Facial Verification & Attendance System</p>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <span class="bg-[#1E345B]/10 text-[#1E345B] border border-[#1E345B]/20 text-xs font-bold px-3.5 py-1.5 rounded-full">
                     Date: {{ metrics.today }}
                 </span>
-                <form action="/logout" method="post">
-                    <button type="button" title="Log out" aria-label="Log out" onclick="openLogoutConfirmation(this.form)" class="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-500">
-                        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
-                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                            <path d="m16 17 5-5-5-5" />
-                            <path d="M21 12H9" />
-                        </svg>
+
+                <!-- Top Right Admin Account Section -->
+                <div class="relative flex items-center gap-3 border-l pl-4 border-slate-200">
+                    <button type="button" onclick="openAdminModal()" class="flex items-center gap-3 hover:opacity-80 transition focus:outline-none">
+                        <div class="h-9 w-9 rounded-full bg-slate-800 text-white font-bold flex items-center justify-center text-sm ring-2 ring-[#1E345B]/30">
+                            AD
+                        </div>
+                        <div class="text-left hidden sm:block">
+                            <p class="text-xs font-bold text-slate-800 leading-tight">Admin User</p>
+                            <p class="text-[10px] text-slate-400">System Administrator</p>
+                        </div>
                     </button>
-                </form>
+
+                    <form action="/logout" method="post">
+                        <button type="button" title="Log out" aria-label="Log out" onclick="openLogoutConfirmation(this.form)" class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-700 focus:outline-none">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path stroke-linecap="round" stroke-linejoin="round" d="m16 17 5-5-5-5"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12H9"/></svg>
+                        </button>
+                    </form>
+                </div>
             </div>
         </header>
 
-        <!-- Metric Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                <p class="text-xs font-bold uppercase text-slate-400">Total Enrolled</p>
-                <p class="text-3xl font-extrabold text-slate-800 mt-1">{{ metrics.total_students }}</p>
+        <!-- Dynamic Body Container -->
+        <div class="p-8 flex-1">
+            
+            {% if notification %}
+            <div id="global-notification" class="fixed left-1/2 top-1/2 z-50 flex w-[calc(100%-2rem)] max-w-xl -translate-x-1/2 -translate-y-1/2 items-start justify-center gap-3 rounded-xl border px-4 py-3 text-center shadow-2xl {% if notification.type == 'warning' %}border-amber-200 bg-amber-50 text-amber-900{% else %}border-emerald-200 bg-emerald-50 text-emerald-900{% endif %}" role="alert">
+                <span class="mt-0.5 text-lg">{% if notification.type == 'warning' %}!{% else %}&#10003;{% endif %}</span>
+                <div class="flex-1">
+                    <p class="font-semibold">{{ notification.title }}</p>
+                    <p class="text-sm mt-0.5">{{ notification.message }}</p>
+                </div>
+                <button type="button" class="text-lg leading-none opacity-60 hover:opacity-100" onclick="this.closest('[role=alert]').remove()" aria-label="Dismiss notification">&times;</button>
             </div>
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                <p class="text-xs font-bold uppercase text-emerald-500">Verified Detected</p>
-                <p class="text-3xl font-extrabold text-emerald-600 mt-1">{{ metrics.detected }}</p>
-            </div>
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                <p class="text-xs font-bold uppercase text-rose-500">Not Detected</p>
-                <p class="text-3xl font-extrabold text-rose-600 mt-1">{{ metrics.not_detected }}</p>
-            </div>
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                <p class="text-xs font-bold uppercase text-amber-500">Pending Verification</p>
-                <p class="text-3xl font-extrabold text-amber-600 mt-1">{{ metrics.pending }}</p>
-            </div>
-        </div>
+            {% endif %}
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Left Panel: Actions -->
-            <div class="space-y-6">
-                <!-- Register Student -->
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                    <h2 class="text-lg font-bold mb-4 text-slate-900">Register Student Profile & Face Data</h2>
-                    <form action="/api/students" method="post" enctype="multipart/form-data" class="space-y-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Full Name</label>
-                            <input type="text" name="name" required class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">LCID</label>
-                            <div class="flex items-center gap-2">
-                                <input type="text" value="{{ next_lcid }}" readonly class="w-40 border rounded-lg px-3 py-2 text-sm bg-slate-100 text-slate-600 outline-none">
-                                <input type="text" name="lcid_suffix" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" minlength="4" placeholder="0001" required class="w-24 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+            <!-- TAB 1: DASHBOARD OVERVIEW -->
+            <section id="tab-dashboard" class="tab-content space-y-8">
+                <!-- Metric Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                        <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Enrolled</p>
+                        <p class="text-3xl font-extrabold text-slate-800 mt-2">{{ metrics.total_students }}</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                        <p class="text-xs font-bold uppercase tracking-wider text-emerald-500">Verified Detected</p>
+                        <p class="text-3xl font-extrabold text-emerald-600 mt-2">{{ metrics.detected }}</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                        <p class="text-xs font-bold uppercase tracking-wider text-rose-500">Not Detected</p>
+                        <p class="text-3xl font-extrabold text-rose-600 mt-2">{{ metrics.not_detected }}</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                        <p class="text-xs font-bold uppercase tracking-wider text-amber-500">Pending</p>
+                        <p class="text-3xl font-extrabold text-amber-600 mt-2">{{ metrics.pending }}</p>
+                    </div>
+                </div>
+
+                <!-- Dashboard Summary Cards -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                        <h3 class="text-lg font-bold text-slate-900 mb-2">System Health & CCTV Pipeline</h3>
+                        <p class="text-sm text-slate-500 mb-6">Real-time status of facial recognition engines and SQLite storage.</p>
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between p-3.5 bg-slate-50 rounded-xl border border-slate-100">
+                                <span class="text-sm font-semibold text-slate-700">Facial Recognition Model</span>
+                                <span class="px-2.5 py-1 text-xs font-bold bg-emerald-100 text-emerald-800 rounded-full">ACTIVE</span>
                             </div>
-                            <p class="mt-1 text-xs text-slate-500">Enter exactly 4 digits after the prefix.</p>
+                            <div class="flex items-center justify-between p-3.5 bg-slate-50 rounded-xl border border-slate-100">
+                                <span class="text-sm font-semibold text-slate-700">CCTV Video Processing</span>
+                                <span class="px-2.5 py-1 text-xs font-bold bg-[#1E345B]/15 text-[#1E345B] rounded-full">READY</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3.5 bg-slate-50 rounded-xl border border-slate-100">
+                                <span class="text-sm font-semibold text-slate-700">Database Connection</span>
+                                <span class="px-2.5 py-1 text-xs font-bold bg-emerald-100 text-emerald-800 rounded-full">CONNECTED</span>
+                            </div>
                         </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Face Photo or Video</label>
-                            <input type="file" name="file" accept="image/*,video/*" required class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Student Profile Photo</label>
-                            <input type="file" name="profile_file" accept="image/jpeg,image/png,image/webp" required class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
-                            <p class="mt-1 text-xs text-slate-500">This photo appears in the Visual Data column.</p>
-                        </div>
-                        <button type="submit" class="w-full bg-indigo-600 text-white font-semibold py-2 rounded-lg text-sm hover:bg-indigo-700 transition">Save Student Profile</button>
-                    </form>
-                </div>
+                    </div>
 
-                <!-- Log Daily Attendance -->
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                    <h2 class="text-lg font-bold mb-4 text-slate-900">Manual Attendance Entry</h2>
-                    <form action="/api/attendance/entry" method="post" class="space-y-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Select Student</label>
-                            <select name="student_id" required class="w-full border rounded-lg px-3 py-2 text-sm outline-none">
-                                {% for student in students %}
-                                <option value="{{ student.id }}">{{ student.name }} ({{ student.lcid }})</option>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                        <h3 class="text-lg font-bold text-slate-900 mb-2">Quick Navigation Shortcuts</h3>
+                        <p class="text-sm text-slate-500 mb-6">Frequently used administrative tools and workflows.</p>
+                        <div class="grid grid-cols-2 gap-4">
+                            <button type="button" onclick="switchTab('students')" class="p-4 border rounded-xl border-slate-200 text-left hover:border-[#1E345B] hover:bg-[#1E345B]/5 transition group">
+                                <p class="font-bold text-slate-800 group-hover:text-[#1E345B] text-sm">Enroll Student &rarr;</p>
+                                <p class="text-xs text-slate-500 mt-1">Register new faces & photos</p>
+                            </button>
+                            <button type="button" onclick="switchTab('cctv')" class="p-4 border rounded-xl border-slate-200 text-left hover:border-amber-500 hover:bg-amber-50/50 transition group">
+                                <p class="font-bold text-slate-800 group-hover:text-amber-600 text-sm">Process Video &rarr;</p>
+                                <p class="text-xs text-slate-500 mt-1">Run CCTV video verification</p>
+                            </button>
+                            <button type="button" onclick="switchTab('attendance')" class="p-4 border rounded-xl border-slate-200 text-left hover:border-emerald-500 hover:bg-emerald-50/50 transition group">
+                                <p class="font-bold text-slate-800 group-hover:text-emerald-600 text-sm">View Logs &rarr;</p>
+                                <p class="text-xs text-slate-500 mt-1">Inspect daily attendance logs</p>
+                            </button>
+                            <button type="button" onclick="switchTab('staff')" class="p-4 border rounded-xl border-slate-200 text-left hover:border-slate-500 hover:bg-slate-50 transition group">
+                                <p class="font-bold text-slate-800 group-hover:text-slate-900 text-sm">Staff Directory &rarr;</p>
+                                <p class="text-xs text-slate-500 mt-1">Manage teaching personnel</p>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: STUDENTS DETAIL -->
+            <section id="tab-students" class="tab-content hidden min-h-[calc(100vh-10rem)] space-y-8">
+                <div class="flex justify-center">
+                    <div class="inline-flex rounded-xl bg-slate-100 border border-slate-200 p-1" role="tablist" aria-label="Student detail views">
+                        <button type="button" id="student-view-register" role="tab" aria-selected="true" onclick="switchStudentView('register')" class="student-view-button rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-[#1E345B] shadow-sm transition">Register Student</button>
+                        <button type="button" id="student-view-directory" role="tab" aria-selected="false" onclick="switchStudentView('directory')" class="student-view-button rounded-lg px-5 py-2.5 text-sm font-semibold text-slate-500 transition hover:text-slate-800">Enrolled Directory</button>
+                    </div>
+                </div>
+                <div id="student-register-panel" class="w-full">
+                <div class="grid grid-cols-1 gap-6 items-start">
+                    <!-- Left Column: Forms -->
+                    <div class="contents">
+                        <!-- Register Student Profile & Face Data -->
+                        <div id="student-register-step" class="w-full max-w-4xl mx-auto bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                            <div class="flex items-center justify-between gap-4 mb-5">
+                                <h2 class="text-lg font-bold text-slate-900">Register Student Profile & Face Data</h2>
+                                <button type="button" onclick="switchTab('dashboard')" class="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition" aria-label="Back to dashboard">
+                                    <svg aria-hidden="true" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 18l-6-6 6-6"/></svg>
+                                    Back
+                                </button>
+                            </div>
+                            <form id="register-student-form" action="/api/students" method="post" enctype="multipart/form-data" class="space-y-4" data-existing-lcids='{{ students | map(attribute="lcid") | list | tojson }}' onsubmit="return validateStudentLcid(this);">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Full Name</label>
+                                    <input type="text" name="name" required class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#1E345B] outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">LCID</label>
+                                    <div class="flex items-center gap-2">
+                                        <input type="text" value="{{ next_lcid }}" readonly class="w-36 border rounded-lg px-3 py-2 text-sm bg-slate-100 text-slate-600 outline-none">
+                                        <input type="text" name="lcid_suffix" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" minlength="4" placeholder="0001" required class="w-24 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#1E345B] outline-none">
+                                    </div>
+                                    <p class="mt-1 text-[11px] text-slate-500">Enter exactly 4 digits after the prefix.</p>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Face Photo or Video</label>
+                                    <input type="file" name="file" accept="image/*,video/*" required class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-[#1E345B]/10 file:text-[#1E345B] hover:file:bg-[#1E345B]/15">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Student Profile Photo</label>
+                                    <input type="file" name="profile_file" accept="image/jpeg,image/png,image/webp" required class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
+                                    <p class="mt-1 text-[11px] text-slate-500">Appears in Visual Data column.</p>
+                                </div>
+                                <div id="student-alert" hidden class="relative items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-center text-amber-900" role="alert">
+                                    <button type="button" class="absolute right-3 top-2 text-lg leading-none opacity-60 hover:opacity-100" onclick="this.closest('[role=alert]').hidden = true" aria-label="Dismiss notification">&times;</button>
+                                    <p id="student-alert-title" class="font-semibold"></p>
+                                    <p id="student-alert-message" class="mt-0.5 text-sm"></p>
+                                </div>
+                                <button type="submit" class="w-full bg-[#1E345B] text-white font-semibold py-2.5 rounded-lg text-sm hover:bg-[#14233f] transition">Save Student Profile</button>
+                            </form>
+                        </div>
+
+                        <!-- Manual Attendance Entry -->
+                        <div id="student-attendance-step" class="w-full max-w-4xl mx-auto bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                            <h2 class="text-lg font-bold mb-4 text-slate-900">Manual Attendance Entry</h2>
+                            <form action="/api/attendance/entry" method="post" class="space-y-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Select Student</label>
+                                    <select name="student_id" required class="w-full border rounded-lg px-3 py-2 text-sm outline-none">
+                                        {% for student in students %}
+                                        <option value="{{ student.id }}">{{ student.name }} ({{ student.lcid }})</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Date</label>
+                                    <input type="date" name="date_str" value="{{ metrics.today }}" required class="w-full border rounded-lg px-3 py-2 text-sm outline-none">
+                                </div>
+                                <button type="submit" class="w-full bg-[#1E345B] text-white font-semibold py-2.5 rounded-lg text-sm hover:bg-[#14233f] transition">Mark Initial Entry</button>
+                            </form>
+                        </div>
+
+                    </div>
+
+                </div>
+                </div>
+                <div id="student-directory-panel" hidden class="w-full">
+                    <div class="min-h-[calc(100vh-12rem)] w-full bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-6 flex flex-col">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h2 class="text-lg font-bold text-slate-900">Enrolled Students Directory</h2>
+                                <p class="text-sm text-slate-500 mt-1">Browse registered student profiles and LCIDs.</p>
+                            </div>
+                            <button type="button" onclick="switchStudentView('register')" class="text-sm font-semibold text-[#1E345B] hover:text-[#14233f]">Add student</button>
+                        </div>
+                        <div class="min-h-0 flex-1 overflow-x-auto rounded-xl border border-slate-100">
+                            <table class="min-w-full text-left text-sm">
+                                <thead class="bg-slate-50 text-slate-500 text-xs uppercase border-b">
+                                    <tr><th class="py-3 px-4">Photo</th><th class="py-3 px-4">Student Name</th><th class="py-3 px-4">LCID</th><th class="py-3 px-4">Status</th></tr>
+                                </thead>
+                                <tbody class="divide-y">
+                                    {% for student in students %}
+                                    <tr class="hover:bg-slate-50">
+                                        <td class="py-5 px-5">{% if student.profile_image_path or student.face_image_path %}<button type="button" class="group block" onclick="openProfilePreview(this)" data-name="{{ student.name }}" data-image="/static/{{ student.profile_image_path or student.face_image_path }}" aria-label="View {{ student.name }} profile photo"><img src="/static/{{ student.profile_image_path or student.face_image_path }}" alt="{{ student.name }} profile photo" class="w-14 h-14 object-cover rounded-full border-2 border-slate-200 group-hover:border-[#1E345B] group-focus:ring-2 group-focus:ring-[#1E345B]"></button>{% else %}<div class="w-14 h-14 bg-slate-200 rounded-full flex items-center justify-center text-xs text-slate-500">N/A</div>{% endif %}</td>
+                                        <td class="py-5 px-5 font-semibold text-slate-800">{{ student.name }}</td>
+                                        <td class="py-5 px-5 font-mono text-xs text-slate-600">{{ student.lcid }}</td>
+                                        <td class="py-5 px-5"><div class="flex items-center justify-between gap-4">{% if student_attendance_status.get(student.id) == 'DETECTED' %}<span class="inline-flex px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">✓ Verified</span>{% elif student_attendance_status.get(student.id) == 'NOT_DETECTED' %}<span class="inline-flex px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-100 text-rose-800">⚠ Proxy</span>{% else %}<span class="inline-flex px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700">Enrolled</span>{% endif %}<form action="/api/students/{{ student.id }}/delete" method="post" onsubmit="return openDeleteConfirmation(event, this, 'Delete this student?', 'This permanently removes the student profile, face data, photo, and all attendance records. This action cannot be undone.');"><input type="hidden" name="return_page" value="students_directory"><button type="submit" class="inline-flex items-center gap-1.5 rounded-lg border border-rose-200 px-2.5 py-1.5 text-xs font-semibold text-rose-700 hover:bg-rose-50" aria-label="Delete {{ student.name }}"><svg aria-hidden="true" class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 7h12m-9 0V5a1 1 0 011 1v1m2 0v12a1 1 0 01-1 1H9a1 1 0 01-1-1V7m-2 0h12"/></svg>Delete</button></form></div></td>
+                                    </tr>
+                                    {% else %}<tr><td colspan="4" class="text-center py-6 text-slate-400">No students registered yet.</td></tr>{% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: ATTENDANCE -->
+            <section id="tab-attendance" class="tab-content hidden space-y-8">
+                <!-- Attendance Log & Verification Status -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                    <h2 class="text-lg font-bold mb-4 text-slate-900">Attendance Log & Verification Status</h2>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-slate-50 text-slate-500 text-xs uppercase border-b">
+                                <tr>
+                                    <th class="py-3 px-4">Student</th>
+                                    <th class="py-3 px-4">Visual Data</th>
+                                    <th class="py-3 px-4">Date</th>
+                                    <th class="py-3 px-4">
+                                        <div class="flex items-center justify-between gap-3">
+                                            <span>Verification Status</span>
+                                            <label class="flex items-center gap-2 normal-case font-normal text-slate-600">
+                                                <span class="sr-only">Filter verification status</span>
+                                                <select id="attendance-status-filter" onchange="filterAttendanceStatus(this.value)" class="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 outline-none focus:ring-2 focus:ring-[#1E345B]">
+                                                    <option value="ALL">All status</option>
+                                                    <option value="DETECTED">Verified</option>
+                                                    <option value="NOT_DETECTED">Proxy</option>
+                                                    <option value="PENDING">Pending</option>
+                                                </select>
+                                            </label>
+                                        </div>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="attendance-table-body" class="divide-y">
+                                {% for log in attendances %}
+                                <tr class="attendance-row hover:bg-slate-50" data-verification-status="{{ log.verification_status or 'PENDING' }}">
+                                    <td class="py-3 px-4">
+                                        <div class="font-semibold text-slate-800">
+                                            {{ log.student.name if log.student else 'Unknown Student' }}
+                                        </div>
+                                        <div class="text-xs text-slate-400">
+                                            LCID: {{ log.student.lcid if log.student else 'N/A' }}
+                                        </div>
+                                    </td>
+                                    <td class="py-3 px-4">
+                                        {% if log.student and (log.student.profile_image_path or log.student.face_image_path) %}
+                                            <button type="button" class="group block" onclick="openProfilePreview(this)" data-name="{{ log.student.name }}" data-image="/static/{{ log.student.profile_image_path or log.student.face_image_path }}" aria-label="View {{ log.student.name }} profile photo">
+                                                <img src="/static/{{ log.student.profile_image_path or log.student.face_image_path }}" alt="{{ log.student.name }} profile photo" class="w-10 h-10 object-cover rounded-full border-2 border-slate-200 group-hover:border-[#1E345B] group-focus:ring-2 group-focus:ring-[#1E345B]">
+                                            </button>
+                                        {% else %}
+                                            <div class="w-10 h-10 bg-slate-200 rounded-full border flex items-center justify-center text-xs text-slate-500">N/A</div>
+                                        {% endif %}
+                                    </td>
+                                    <td class="py-3 px-4 font-mono text-xs">{{ log.date }}</td>
+                                    <td class="py-3 px-4">
+                                        <div class="flex items-center justify-between gap-4">
+                                        {% if log.verification_status == 'DETECTED' %}
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
+                                                ✓ VERIFIED
+                                            </span>
+                                        {% elif log.verification_status == 'NOT_DETECTED' %}
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-100 text-rose-800">
+                                                ⚠ PROXY
+                                            </span>
+                                        {% else %}
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">
+                                                ⧖ PENDING
+                                            </span>
+                                        {% endif %}
+                                            {% if log.student %}<form action="/api/attendance/{{ log.id }}/delete" method="post" onsubmit="return openDeleteConfirmation(event, this, 'Delete attendance record?', 'This permanently removes this verification record for the selected date. This action cannot be undone.');"><input type="hidden" name="return_page" value="attendance"><button type="submit" class="inline-flex items-center gap-1.5 rounded-lg border border-rose-200 px-2.5 py-1.5 text-xs font-semibold text-rose-700 hover:bg-rose-50" aria-label="Delete attendance record for {{ log.student.name }}"><svg aria-hidden="true" class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 7h12m-9 0V5a1 1 0 011-1h2a1 1 0 011 1v2m2 0v12a1 1 0 01-1 1H9a1 1 0 01-1-1V7m-2 0h12"/></svg>Delete</button></form>{% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr id="attendance-empty-row">
+                                    <td colspan="4" class="text-center py-6 text-slate-400">No attendance entries recorded yet.</td>
+                                </tr>
                                 {% endfor %}
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Date</label>
-                            <input type="date" name="date_str" value="{{ metrics.today }}" required class="w-full border rounded-lg px-3 py-2 text-sm outline-none">
-                        </div>
-                        <button type="submit" class="w-full bg-slate-800 text-white font-semibold py-2 rounded-lg text-sm hover:bg-slate-900 transition">Mark Initial Entry</button>
-                    </form>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
-                <!-- Verify via CCTV Video -->
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                    <h2 class="text-lg font-bold mb-4 text-slate-900">CCTV Video Verification</h2>
-                    <form action="/api/attendance/verify-cctv" method="post" enctype="multipart/form-data" class="space-y-4">
+            </section>
+
+            <!-- TAB 4: CCTV VERIFICATION -->
+            <section id="tab-cctv" class="tab-content hidden min-h-[calc(100vh-10rem)] space-y-8">
+                <div class="w-full max-w-4xl mx-auto bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200">
+                    <div class="flex items-start gap-4 mb-6">
+                        <div class="h-11 w-11 shrink-0 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center">
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                        </div>
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-900">CCTV Face Verification</h2>
+                            <p class="mt-1 text-sm text-slate-500">Upload CCTV footage to compare enrolled faces and update today’s attendance statuses.</p>
+                        </div>
+                    </div>
+                    <form action="/api/attendance/verify-cctv" method="post" enctype="multipart/form-data" class="space-y-5">
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 mb-1">Target Date</label>
-                            <input type="date" name="date_str" value="{{ metrics.today }}" required class="w-full border rounded-lg px-3 py-2 text-sm outline-none">
+                            <input type="date" name="date_str" value="{{ metrics.today }}" required class="w-full border rounded-lg px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-[#1E345B]">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Upload CCTV Footage (.mp4 / .avi)</label>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">CCTV Footage</label>
                             <input type="file" name="cctv_file" accept="video/*" required class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100">
+                            <p class="mt-1 text-xs text-slate-500">Supported footage includes MP4 and AVI video files.</p>
                         </div>
-                        <button type="submit" class="w-full bg-amber-600 text-white font-semibold py-2 rounded-lg text-sm hover:bg-amber-700 transition">Process Video & Verify</button>
+                        <div class="flex items-center justify-between gap-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-600">
+                            <span>Detected faces become <strong class="text-emerald-700">Verified</strong>; missing faces become <strong class="text-rose-700">Proxy</strong>.</span>
+                            <span class="shrink-0 font-semibold text-amber-700">Pending until processed</span>
+                        </div>
+                        <button type="submit" class="w-full bg-[#1E345B] text-white font-semibold py-3 rounded-lg text-sm hover:bg-[#14233f] transition">Process Footage & Verify Students</button>
                     </form>
+                </div>
+            </section>
+
+            <!-- TAB 5: STAFF -->
+            <section id="tab-staff" class="tab-content hidden space-y-8">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 class="text-lg font-bold text-slate-900">Teaching & Operational Staff</h2>
+                            <p class="text-sm text-slate-500">Staff directory and CCTV monitoring supervisors.</p>
+                        </div>
+                        <button type="button" class="bg-slate-800 text-white text-xs font-semibold px-4 py-2 rounded-lg hover:bg-slate-900 transition">+ Add Staff Member</button>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-slate-50 text-slate-500 text-xs uppercase border-b">
+                                <tr>
+                                    <th class="py-3 px-4">Staff Name</th>
+                                    <th class="py-3 px-4">Position</th>
+                                    <th class="py-3 px-4">Department</th>
+                                    <th class="py-3 px-4">Contact</th>
+                                    <th class="py-3 px-4">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y text-slate-700">
+                                <tr class="hover:bg-slate-50">
+                                    <td class="py-3.5 px-4 font-semibold text-slate-800">Adeleke Maureen</td>
+                                    <td class="py-3.5 px-4">Senior Supervisor</td>
+                                    <td class="py-3.5 px-4">Computer Science</td>
+                                    <td class="py-3.5 px-4 font-mono text-xs">admin@antiproxy.local</td>
+                                    <td class="py-3.5 px-4"><span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">Active</span></td>
+                                </tr>
+                                <tr class="hover:bg-slate-50">
+                                    <td class="py-3.5 px-4 font-semibold text-slate-800">Hussain Ismail</td>
+                                    <td class="py-3.5 px-4">CCTV Operator</td>
+                                    <td class="py-3.5 px-4">Security Operations</td>
+                                    <td class="py-3.5 px-4 font-mono text-xs">+1 (555) 019-2834</td>
+                                    <td class="py-3.5 px-4"><span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">Active</span></td>
+                                </tr>
+                                <tr class="hover:bg-slate-50">
+                                    <td class="py-3.5 px-4 font-semibold text-slate-800">Asser Osman</td>
+                                    <td class="py-3.5 px-4">System Auditor</td>
+                                    <td class="py-3.5 px-4">IT Infrastructure</td>
+                                    <td class="py-3.5 px-4 font-mono text-xs">+1 (555) 014-9982</td>
+                                    <td class="py-3.5 px-4"><span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-600">Offline</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 5: HELP & SUPPORT -->
+            <section id="tab-support" class="tab-content hidden space-y-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
+                        <div class="h-10 w-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-lg">?</div>
+                        <h2 class="text-lg font-bold text-slate-900">Anti-Proxy System Troubleshooting</h2>
+                        <div class="space-y-3 text-sm text-slate-600">
+                            <p><strong>1. Face Encoding Errors:</strong> Ensure face photos uploaded during registration are well-lit with clear visibility of eyes and nose.</p>
+                            <p><strong>2. CCTV Video Verification:</strong> Upload videos in `.mp4` format. Ensure camera resolution is at least 720p for optimal facial detection accuracy.</p>
+                            <p><strong>3. Status Flags:</strong> If status reads <em>NOT_DETECTED</em>, check if the student is enrolled in the facial database or upload a clearer baseline profile photo.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
+                        <div class="h-10 w-10 rounded-xl bg-[#1E345B]/15 text-[#1E345B] flex items-center justify-center font-bold text-lg">i</div>
+                        <h2 class="text-lg font-bold text-slate-900">Administrator Technical Support</h2>
+                        <p class="text-sm text-slate-600">Need help extending Anti-Proxy or integrating secondary CCTV feeds?</p>
+                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-100 space-y-2 text-xs font-mono text-slate-700">
+                            <p><strong>Support Email:</strong> support@antiproxy.local</p>
+                            <p><strong>API Endpoint:</strong> /api/attendance/verify-cctv</p>
+                            <p><strong>Database:</strong> SQLite Engine / SQLAlchemy ORM</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- MODALS SECTION -->
+
+    <!-- Admin Account Information Modal -->
+    <div id="admin-modal" hidden class="fixed inset-0 z-50 bg-slate-950/60 p-4 flex items-center justify-center" role="dialog" aria-modal="true">
+        <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl space-y-6">
+            <div class="flex items-center justify-between border-b pb-4">
+                <div class="flex items-center gap-3">
+                    <div class="h-12 w-12 rounded-full bg-slate-900 text-white font-bold flex items-center justify-center text-lg">AD</div>
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900">Admin Account</h2>
+                        <p class="text-xs text-slate-500">System Administrator Profile</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeAdminModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+            </div>
+            
+            <div class="space-y-3 text-sm text-slate-600">
+                <div class="flex justify-between py-2 border-b border-slate-100">
+                    <span class="text-slate-400">Role</span>
+                    <span class="font-semibold text-slate-800">Super Administrator</span>
+                </div>
+                <div class="flex justify-between py-2 border-b border-slate-100">
+                    <span class="text-slate-400">System ID</span>
+                    <span class="font-mono text-xs text-slate-800">ADMIN-001-LOCAL</span>
+                </div>
+                <div class="flex justify-between py-2 border-b border-slate-100">
+                    <span class="text-slate-400">Access Level</span>
+                    <span class="px-2 py-0.5 text-xs font-bold bg-[#1E345B]/15 text-[#1E345B] rounded">FULL CONTROL</span>
                 </div>
             </div>
 
-            <!-- Right Panel: Combined Records Table -->
-            <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-                <h2 class="text-lg font-bold mb-4 text-slate-900">Attendance Log & Verification Status</h2>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm">
-                        <thead class="bg-slate-50 text-slate-500 text-xs uppercase border-b">
-                            <tr>
-                                <th class="py-3 px-4">Student</th>
-                                <th class="py-3 px-4">Visual Data</th>
-                                <th class="py-3 px-4">Date</th>
-                                <th class="py-3 px-4">Verification Status</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y">
-                            {% for log in attendances %}
-                            <tr class="hover:bg-slate-50">
-                                <td class="py-3 px-4">
-                                    <div class="font-semibold text-slate-800">
-                                        {{ log.student.name if log.student else 'Unknown Student' }}
-                                    </div>
-                                    <div class="text-xs text-slate-400">
-                                        LCID: {{ log.student.lcid if log.student else 'N/A' }}
-                                    </div>
-                                </td>
-                                <td class="py-3 px-4">
-                                    {% if log.student and (log.student.profile_image_path or log.student.face_image_path) %}
-                                        <button type="button" class="group block" onclick="openProfilePreview(this)" data-name="{{ log.student.name }}" data-image="/static/{{ log.student.profile_image_path or log.student.face_image_path }}" aria-label="View {{ log.student.name }} profile photo">
-                                            <img src="/static/{{ log.student.profile_image_path or log.student.face_image_path }}" alt="{{ log.student.name }} profile photo" class="w-10 h-10 object-cover rounded-full border-2 border-slate-200 group-hover:border-indigo-500 group-focus:ring-2 group-focus:ring-indigo-500">
-                                            <span class="sr-only">View larger photo</span>
-                                        </button>
-                                    {% else %}
-                                        <div class="w-10 h-10 bg-slate-200 rounded-full border flex items-center justify-center text-xs text-slate-500">N/A</div>
-                                    {% endif %}
-                                </td>
-                                <td class="py-3 px-4 font-mono text-xs">{{ log.date }}</td>
-                                <td class="py-3 px-4">
-                                    {% if log.verification_status == 'DETECTED' %}
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
-                                            ✓ DETECTED
-                                        </span>
-                                    {% elif log.verification_status == 'NOT_DETECTED' %}
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-100 text-rose-800">
-                                            ✕ NOT DETECTED
-                                        </span>
-                                    {% else %}
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">
-                                            ⧖ PENDING
-                                        </span>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% else %}
-                            <tr>
-                                <td colspan="4" class="text-center py-6 text-slate-400">No attendance entries recorded yet.</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+            <div class="flex justify-end gap-3 pt-2">
+                <button type="button" onclick="closeAdminModal()" class="w-full rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Close</button>
             </div>
         </div>
-
-        <!-- Delete section intentionally kept after all attendance details. -->
-        <section class="mt-8 bg-white rounded-xl shadow-sm border border-rose-200 p-6">
-            <div class="flex items-start justify-between gap-4 mb-5">
-                <div>
-                    <h2 class="text-lg font-bold text-slate-900">Delete Records</h2>
-                    <p class="text-sm text-slate-500 mt-1">Use these controls only when a record must be permanently removed.</p>
-                </div>
-                <span class="text-xs font-semibold uppercase tracking-wide text-rose-600 bg-rose-50 px-3 py-1 rounded-full">Admin only</span>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="border border-slate-200 rounded-lg p-4">
-                    <h3 class="font-semibold text-slate-800">Delete attendance entry</h3>
-                    <p class="text-xs text-slate-500 mt-1 mb-3">Removes only the selected date's attendance record.</p>
-                    <form action="/api/attendance/0/delete" method="post" onsubmit="return openDeleteConfirmation(event, this, 'Delete attendance entry?', 'This removes only the selected attendance record.');" class="flex gap-2">
-                        <select name="attendance_id" required class="min-w-0 flex-1 border rounded-lg px-3 py-2 text-sm" onchange="updateDeleteAction(this, '/api/attendance/')">
-                            <option value="" selected disabled>Select an entry</option>
-                            {% for log in attendances %}
-                            <option value="{{ log.id }}">{{ log.student.name if log.student else 'Unknown' }} · {{ log.date }} · {{ log.verification_status or 'PENDING' }}</option>
-                            {% endfor %}
-                        </select>
-                        <button type="submit" class="shrink-0 rounded-lg bg-rose-600 px-3 py-2 text-sm font-semibold text-white hover:bg-rose-700">Delete</button>
-                    </form>
-                </div>
-                <div class="border border-slate-200 rounded-lg p-4">
-                    <h3 class="font-semibold text-slate-800">Delete student</h3>
-                    <p class="text-xs text-slate-500 mt-1 mb-3">Removes the student, face data, profile photo, and all attendance records.</p>
-                    <form action="/api/students/0/delete" method="post" onsubmit="return openDeleteConfirmation(event, this, 'Delete student and all records?', 'This permanently removes the student, profile photo, face data, and attendance records.');" class="flex gap-2">
-                        <select name="student_id" required class="min-w-0 flex-1 border rounded-lg px-3 py-2 text-sm" onchange="updateDeleteAction(this, '/api/students/')">
-                            <option value="" selected disabled>Select a student</option>
-                            {% for student in students %}
-                            <option value="{{ student.id }}">{{ student.name }} · {{ student.lcid }}</option>
-                            {% endfor %}
-                        </select>
-                        <button type="submit" class="shrink-0 rounded-lg bg-rose-600 px-3 py-2 text-sm font-semibold text-white hover:bg-rose-700">Delete</button>
-                    </form>
-                </div>
-            </div>
-        </section>
     </div>
 
+    <!-- Profile Image Preview Modal -->
     <div id="profile-preview" hidden class="fixed inset-0 z-50 bg-slate-950/75 p-4 flex items-center justify-center" role="dialog" aria-modal="true" aria-labelledby="profile-preview-name" onclick="closeProfilePreview(event)">
         <div class="relative max-w-2xl w-full rounded-2xl bg-white p-4 shadow-2xl" onclick="event.stopPropagation()">
             <button type="button" onclick="closeProfilePreview()" class="absolute right-3 top-3 h-9 w-9 rounded-full bg-slate-900/80 text-white text-xl leading-none hover:bg-slate-900" aria-label="Close profile preview">&times;</button>
@@ -229,21 +522,26 @@
             <p id="profile-preview-name" class="mt-3 text-center font-semibold text-slate-800"></p>
         </div>
     </div>
+
+    <!-- Delete Confirmation Modal -->
     <div id="delete-confirmation" hidden class="fixed inset-0 z-50 bg-slate-950/60 p-4 flex items-center justify-center" role="dialog" aria-modal="true" aria-labelledby="delete-confirmation-title">
         <div class="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
             <div class="flex items-start gap-3">
-                <div class="h-10 w-10 shrink-0 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center text-lg">!</div>
+                <div class="h-10 w-10 shrink-0 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center text-lg font-bold">!</div>
                 <div>
                     <h2 id="delete-confirmation-title" class="text-lg font-bold text-slate-900"></h2>
                     <p id="delete-confirmation-message" class="mt-2 text-sm text-slate-600"></p>
                 </div>
             </div>
+            <div class="mt-4 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-medium text-rose-800">This action is permanent. The deleted data cannot be recovered.</div>
             <div class="mt-6 flex justify-end gap-3">
                 <button type="button" onclick="closeDeleteConfirmation()" class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Cancel</button>
-                <button type="button" onclick="submitDeleteConfirmation()" class="rounded-lg bg-rose-600 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-700">Delete permanently</button>
+                <button type="button" onclick="submitDeleteConfirmation()" class="rounded-lg bg-rose-600 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-700">Yes, delete permanently</button>
             </div>
         </div>
     </div>
+
+    <!-- Logout Confirmation Modal -->
     <div id="logout-confirmation" hidden class="fixed inset-0 z-50 bg-slate-950/60 p-4 flex items-center justify-center" role="dialog" aria-modal="true" aria-labelledby="logout-confirmation-title">
         <div class="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
             <div class="flex items-start gap-3">
@@ -255,7 +553,7 @@
                     </svg>
                 </div>
                 <div>
-                    <h2 id="logout-confirmation-title" class="text-lg font-bold text-slate-900">Log out of VisionAttend?</h2>
+                    <h2 id="logout-confirmation-title" class="text-lg font-bold text-slate-900">Log out of Anti-Proxy?</h2>
                     <p class="mt-2 text-sm text-slate-600">You will need to sign in again to manage students and attendance.</p>
                 </div>
             </div>
@@ -265,7 +563,139 @@
             </div>
         </div>
     </div>
+
+    <!-- JavaScript Logic -->
     <script>
+        // Tab Switcher Function
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            document.querySelectorAll('.nav-link').forEach(btn => {
+                btn.classList.remove('bg-[#1E345B]', 'text-white', 'shadow-md', 'shadow-[#1E345B]/20');
+                btn.classList.add('text-slate-400', 'hover:bg-[#4779A1]', 'hover:text-white');
+            });
+
+            const activeTab = document.getElementById('tab-' + tabId);
+            const activeNav = document.getElementById('nav-' + tabId);
+
+            if (activeTab) activeTab.classList.remove('hidden');
+            if (activeNav) {
+                activeNav.classList.add('bg-[#1E345B]', 'text-white', 'shadow-md', 'shadow-[#1E345B]/20');
+                activeNav.classList.remove('text-slate-400', 'hover:bg-[#4779A1]', 'hover:text-white');
+            }
+
+            if (tabId === 'students') switchStudentStep('register');
+
+            // Update Header Title dynamically
+            const titleMap = {
+                'dashboard': 'Dashboard Overview',
+                'students': 'Students Detail & Registration',
+                'attendance': 'Attendance Records & Logs',
+                'staff': 'Teaching & Security Staff Directory',
+                'support': 'System Help & Technical Support'
+            };
+            document.getElementById('page-title').textContent = titleMap[tabId] || 'Anti-Proxy Dashboard';
+        }
+
+        function switchStudentView(view) {
+            const registerPanel = document.getElementById('student-register-panel');
+            const directoryPanel = document.getElementById('student-directory-panel');
+            const registerButton = document.getElementById('student-view-register');
+            const directoryButton = document.getElementById('student-view-directory');
+            const isDirectory = view === 'directory';
+
+            registerPanel.hidden = isDirectory;
+            directoryPanel.hidden = !isDirectory;
+            registerButton.setAttribute('aria-selected', String(!isDirectory));
+            directoryButton.setAttribute('aria-selected', String(isDirectory));
+            registerButton.classList.toggle('bg-white', !isDirectory);
+            registerButton.classList.toggle('text-[#1E345B]', !isDirectory);
+            registerButton.classList.toggle('shadow-sm', !isDirectory);
+            registerButton.classList.toggle('text-slate-500', isDirectory);
+            directoryButton.classList.toggle('bg-white', isDirectory);
+            directoryButton.classList.toggle('text-[#1E345B]', isDirectory);
+            directoryButton.classList.toggle('shadow-sm', isDirectory);
+            directoryButton.classList.toggle('text-slate-500', !isDirectory);
+        }
+
+        function switchStudentStep(step) {
+            const stepCards = {
+                register: document.getElementById('student-register-step'),
+                attendance: document.getElementById('student-attendance-step'),
+                cctv: document.getElementById('student-cctv-step')
+            };
+
+            if (step === 'directory') {
+                switchStudentView('directory');
+                return;
+            }
+
+            switchStudentView('register');
+            Object.entries(stepCards).forEach(([name, card]) => {
+                card.hidden = name !== step;
+            });
+        }
+
+        function validateStudentLcid(form) {
+            const suffix = form.elements.lcid_suffix.value.trim();
+            const lcid = '{{ next_lcid }}' + suffix;
+            const existingLcids = JSON.parse(form.dataset.existingLcids || '[]');
+
+            if (existingLcids.includes(lcid)) {
+                showStudentAlert(
+                    'LCID already registered',
+                    'This LCID is already assigned to an enrolled student. Please enter a different LCID.'
+                );
+                form.elements.lcid_suffix.focus();
+                return false;
+            }
+
+            return true;
+        }
+
+        function showStudentAlert(title, message) {
+            const alert = document.getElementById('student-alert');
+            alert.querySelector('#student-alert-title').textContent = title;
+            alert.querySelector('#student-alert-message').textContent = message;
+            alert.hidden = false;
+        }
+
+        function filterAttendanceStatus(status) {
+            const tableBody = document.getElementById('attendance-table-body');
+            if (!tableBody) return;
+
+            const rows = Array.from(tableBody.querySelectorAll('.attendance-row'));
+            let visibleRows = 0;
+            rows.forEach(row => {
+                const matches = status === 'ALL' || row.dataset.verificationStatus === status;
+                row.hidden = !matches;
+                if (matches) visibleRows += 1;
+            });
+
+            let emptyRow = document.getElementById('attendance-filter-empty-row');
+            if (visibleRows === 0 && rows.length > 0) {
+                if (!emptyRow) {
+                    emptyRow = document.createElement('tr');
+                    emptyRow.id = 'attendance-filter-empty-row';
+                    emptyRow.innerHTML = '<td colspan="4" class="text-center py-6 text-slate-400">No students match this status.</td>';
+                    tableBody.appendChild(emptyRow);
+                }
+                emptyRow.hidden = false;
+            } else if (emptyRow) {
+                emptyRow.hidden = true;
+            }
+        }
+
+        // Admin Modal Functions
+        function openAdminModal() {
+            document.getElementById('admin-modal').hidden = false;
+            document.body.classList.add('overflow-hidden');
+        }
+        function closeAdminModal() {
+            document.getElementById('admin-modal').hidden = true;
+            document.body.classList.remove('overflow-hidden');
+        }
+
+        // Profile Preview Modal Functions
         function openProfilePreview(button) {
             const modal = document.getElementById('profile-preview');
             const image = document.getElementById('profile-preview-image');
@@ -282,6 +712,7 @@
             document.body.classList.remove('overflow-hidden');
         }
 
+        // Delete & Logout Confirmation Handlers
         let pendingDeleteForm = null;
         let pendingLogoutForm = null;
 
@@ -331,16 +762,32 @@
             form.submit();
         }
 
-        function closeDeleteOnEscape(event) {
-            if (event.key === 'Escape') closeDeleteConfirmation();
-        }
-
+        // Global Escape Key Listener
         document.addEventListener('keydown', function (event) {
             if (event.key !== 'Escape') return;
             closeProfilePreview();
             closeDeleteConfirmation();
             closeLogoutConfirmation();
+            closeAdminModal();
         });
+
+        const initialActiveTab = '{{ active_tab }}';
+        const initialStudentStep = '{{ student_step }}';
+        if (initialActiveTab === 'students') {
+            switchTab('students');
+            switchStudentStep(initialStudentStep);
+        } else {
+            switchTab(initialActiveTab);
+        }
+        window.history.replaceState({}, '', '/dashboard');
+
+        {% if notification and notification.title == 'Face not detected' %}
+        window.setTimeout(() => window.location.reload(), 2500);
+        {% endif %}
+
+        {% if notification %}
+        window.setTimeout(() => document.getElementById('global-notification')?.remove(), 2000);
+        {% endif %}
     </script>
 </body>
 </html>

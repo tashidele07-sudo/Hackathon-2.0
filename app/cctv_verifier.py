@@ -5,7 +5,12 @@ from sqlalchemy.orm import Session
 from app.models import Student, Attendance
 from app.face_engine import extract_face_encoding, match_face_in_frame
 
-def process_cctv_video(cctv_video_path: str, db: Session, frame_skip: int = 15):
+def process_cctv_video(
+    cctv_video_path: str,
+    db: Session,
+    target_date: date | None = None,
+    frame_skip: int = 15,
+):
     """
     Reads a CCTV video (.mp4), checks frames against database students,
     and updates Attendance table with cctv_status='detected'.
@@ -14,7 +19,7 @@ def process_cctv_video(cctv_video_path: str, db: Session, frame_skip: int = 15):
     if not cap.isOpened():
         raise FileNotFoundError(f"Cannot open CCTV feed: {cctv_video_path}")
 
-    today = date.today()
+    attendance_date = target_date or date.today()
     students = db.query(Student).all()
     
     # Pre-fetch and cache student face encodings
@@ -28,10 +33,16 @@ def process_cctv_video(cctv_video_path: str, db: Session, frame_skip: int = 15):
             # Ensure attendance row exists for today
             att = db.query(Attendance).filter(
                 Attendance.student_id == s.id, 
-                Attendance.date == today
+                Attendance.date == attendance_date
             ).first()
             if not att:
-                att = Attendance(student_id=s.id, date=today)
+                att = Attendance(
+                    student_id=s.id,
+                    date=attendance_date,
+                    marked_status="Absent",
+                    cctv_status="not detected",
+                    verification_status="PENDING",
+                )
                 db.add(att)
                 db.commit()
                 db.refresh(att)
@@ -69,4 +80,20 @@ def process_cctv_video(cctv_video_path: str, db: Session, frame_skip: int = 15):
                 db.commit()
 
     cap.release()
-    return {"processed_frames": frame_count, "detected_student_ids": list(detected_ids)}
+    not_detected_ids = set()
+    for item in student_cache:
+        if item["student_id"] in detected_ids:
+            continue
+        not_detected_ids.add(item["student_id"])
+        att = item["attendance"]
+        att.cctv_status = "not detected"
+        att.marked_status = "Absent"
+        att.verification_status = "NOT_DETECTED"
+        att.cctv_source_path = cctv_video_path
+    db.commit()
+
+    return {
+        "processed_frames": frame_count,
+        "detected_student_ids": list(detected_ids),
+        "not_detected_student_ids": list(not_detected_ids),
+    }

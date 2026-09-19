@@ -8,6 +8,62 @@ from sqlalchemy.orm import Session
 from app.database import SessionLocal
 from app.models import Student, Attendance
 
+
+def recognize_webcam_frame(frame_bytes: bytes, db: Session, target_date=None):
+    """Match one browser webcam frame and mark recognized students as detected."""
+    if target_date is None:
+        target_date = datetime.date.today()
+
+    frame_array = np.frombuffer(frame_bytes, dtype=np.uint8)
+    frame = cv2.imdecode(frame_array, cv2.IMREAD_COLOR)
+    if frame is None:
+        raise ValueError("The webcam frame could not be decoded.")
+
+    students = db.query(Student).filter(Student.face_encoding.isnot(None)).all()
+    known_students = []
+    for student in students:
+        try:
+            known_students.append((student, np.array(json.loads(student.face_encoding))))
+        except (TypeError, json.JSONDecodeError, ValueError):
+            continue
+    if not known_students:
+        return []
+
+    small_frame = cv2.resize(frame, (0, 0), fx=0.5, fy=0.5)
+    rgb_small_frame = cv2.cvtColor(small_frame, cv2.COLOR_BGR2RGB)
+    face_locations = face_recognition.face_locations(rgb_small_frame)
+    face_encodings = face_recognition.face_encodings(rgb_small_frame, face_locations)
+    known_encodings = [encoding for _, encoding in known_students]
+    detected_students = {}
+
+    for face_encoding in face_encodings:
+        matches = face_recognition.compare_faces(known_encodings, face_encoding, tolerance=0.5)
+        distances = face_recognition.face_distance(known_encodings, face_encoding)
+        if len(distances) == 0:
+            continue
+        best_index = int(np.argmin(distances))
+        if matches[best_index]:
+            student = known_students[best_index][0]
+            detected_students[student.id] = student
+
+    for student in detected_students.values():
+        attendance = db.query(Attendance).filter(
+            Attendance.student_id == student.id,
+            Attendance.date == target_date,
+        ).first()
+        if not attendance:
+            attendance = Attendance(student_id=student.id, date=target_date)
+            db.add(attendance)
+        attendance.cctv_status = "detected"
+        attendance.marked_status = "Present"
+        attendance.verification_status = "DETECTED"
+        attendance.cctv_source_path = "browser-webcam"
+
+    if detected_students:
+        db.commit()
+
+    return [{"id": student.id, "name": student.name} for student in detected_students.values()]
+
 def run_live_opencv_recognition(video_source=0, target_date=None):
     """
     Opens an OpenCV video feed (0 for webcam or 'path/to/video.mp4'),
