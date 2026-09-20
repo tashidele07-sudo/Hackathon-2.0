@@ -184,10 +184,11 @@ def register_student(
     if db.query(Student).filter(Student.lcid == lcid).first():
         request.session["notification"] = {
             "type": "warning",
-            "title": "LCID already registered",
+            "title": "Warning",
             "message": f"LCID {lcid} is already assigned to an enrolled student. Please enter a different LCID.",
+            "target": "register",
         }
-        return RedirectResponse(url="/dashboard?student_step=register", status_code=303)
+        return RedirectResponse(url="/dashboard?active_tab=students&student_step=register", status_code=303)
     filename = file.filename or "upload"
     ext = filename.rsplit(".", 1)[-1].lower() if "." in filename else "bin"
     media_type = "video" if ext in {"mp4", "avi", "mov", "mkv", "webm"} else "image"
@@ -238,11 +239,12 @@ def register_student(
     db.commit()
     request.session["notification"] = {
         "type": "success",
-        "title": "Student added",
-        "message": f"{name} was successfully added to the enrolled directory.",
+        "title": "Student added successfully",
+        "message": "The student has been added to the enrolled students list.",
+        "target": "register",
     }
 
-    return RedirectResponse(url="/dashboard?student_step=attendance", status_code=303)
+    return RedirectResponse(url="/dashboard?active_tab=students&student_step=register", status_code=303)
 
 @app.post("/api/attendance/entry")
 def manual_attendance_entry(
@@ -326,12 +328,14 @@ def verify_cctv_form(
             "type": "warning",
             "title": "Face not detected",
             "message": f"{len(not_detected_students)} student(s) were not found in the CCTV video: {names}.",
+            "target": "attendance",
         }
     else:
         request.session["notification"] = {
             "type": "success",
             "title": "CCTV verification complete",
             "message": f"Faces detected for all registered students ({detected_count}).",
+            "target": "attendance",
         }
 
     return RedirectResponse(url="/dashboard?active_tab=attendance", status_code=303)
@@ -393,6 +397,7 @@ def complete_webcam_verification(
         "type": "warning" if proxy_count else "success",
         "title": "Webcam verification complete",
         "message": f"{proxy_count} student(s) marked as Proxy." if proxy_count else "All enrolled students were verified.",
+        "target": "attendance",
     }
     return JSONResponse({"proxy_count": proxy_count, "redirect_url": "/dashboard?active_tab=attendance"})
 
@@ -411,9 +416,10 @@ def delete_attendance(
     db.delete(attendance)
     db.commit()
     request.session["notification"] = {
-        "type": "success",
-        "title": "Attendance record deleted",
-        "message": "The verification record was permanently removed.",
+        "type": "error",
+        "title": "Attendance record deleted successfully",
+        "message": "The attendance record has been removed.",
+        "target": "attendance",
     }
     redirect_url = "/dashboard?active_tab=attendance" if return_page == "attendance" else "/dashboard"
     return RedirectResponse(url=redirect_url, status_code=303)
@@ -444,9 +450,10 @@ def delete_student(
     db.delete(student)
     db.commit()
     request.session["notification"] = {
-        "type": "success",
-        "title": "Student deleted",
-        "message": "The student profile, face data, photo, and attendance records were permanently removed.",
+        "type": "error",
+        "title": "Student deleted successfully",
+        "message": "The student has been removed from the enrolled students list.",
+        "target": "directory",
     }
     redirect_url = "/dashboard?active_tab=students&student_step=directory" if return_page == "students_directory" else "/dashboard"
     return RedirectResponse(url=redirect_url, status_code=303)

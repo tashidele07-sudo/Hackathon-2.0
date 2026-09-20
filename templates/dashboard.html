@@ -7,21 +7,45 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         [hidden] { display: none !important; }
+        #student-register-panel,
+        #student-register-panel > .grid,
+        #student-register-step {
+            overflow-y: visible;
+        }
+        .notification-host {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            pointer-events: none;
+        }
+        .app-toast {
+            width: calc(100% - 1rem);
+            margin-bottom: 1rem;
+            transform: translateY(-10px);
+            opacity: 0;
+            pointer-events: auto;
+            transition: opacity 220ms ease, transform 220ms ease;
+        }
+        .app-toast.is-visible {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        .app-toast.is-leaving {
+            transform: translateY(-10px);
+            opacity: 0;
+        }
     </style>
 </head>
 <body class="bg-[#F5F4F4] font-sans text-slate-800 min-h-screen flex">
 
     <!-- Sidebar Navigation -->
-    <aside class="w-64 bg-[#F1FAEF] text-slate-300 flex flex-col justify-between shrink-0 min-h-screen sticky top-0 h-screen overflow-y-auto">
+    <aside id="sidebar" class="w-64 bg-[#F1FAEF] text-slate-300 flex flex-col justify-between shrink-0 min-h-screen sticky top-0 h-screen">
         <div>
             <!-- Project Brand Name Top Left -->
             <div class="px-6 py-6 border-b border-slate-800 flex items-center gap-3">
-                <div class="h-9 w-9 rounded-xl bg-[#1E345B] text-white font-black flex items-center justify-center text-xl shadow-lg shadow-[#1E345B]/30">
-                    AP
-                </div>
                 <div>
-                    <h1 class="text-xl font-extrabold text-[#1E345B] tracking-wide">Anti-Proxy</h1>
-                    <p class="text-xs text-slate-400">AI Facial Verification</p>
+                    <h1 class="text-2xl font-extrabold text-[#1E345B] tracking-wide">Anti-Proxy</h1>
+                    <p class="text-2xs text-slate-400">AI Facial Verification</p>
                 </div>
             </div>
 
@@ -70,7 +94,7 @@
         <header class="bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between sticky top-0 z-30 shadow-sm">
             <div>
                 <h2 id="page-title" class="text-xl font-bold text-slate-900">Dashboard Overview</h2>
-                <p class="text-xs text-slate-500">Automated CCTV Facial Verification & Attendance System</p>
+                <p class="text-xs text-slate-500">Smart Anti-Proxy Attendance System</p>
             </div>
 
             <div class="flex items-center gap-4">
@@ -102,22 +126,12 @@
         <!-- Dynamic Body Container -->
         <div class="p-8 flex-1">
             
-            {% if notification %}
-            <div id="global-notification" class="fixed left-1/2 top-1/2 z-50 flex w-[calc(100%-2rem)] max-w-xl -translate-x-1/2 -translate-y-1/2 items-start justify-center gap-3 rounded-xl border px-4 py-3 text-center shadow-2xl {% if notification.type == 'warning' %}border-amber-200 bg-amber-50 text-amber-900{% else %}border-emerald-200 bg-emerald-50 text-emerald-900{% endif %}" role="alert">
-                <span class="mt-0.5 text-lg">{% if notification.type == 'warning' %}!{% else %}&#10003;{% endif %}</span>
-                <div class="flex-1">
-                    <p class="font-semibold">{{ notification.title }}</p>
-                    <p class="text-sm mt-0.5">{{ notification.message }}</p>
-                </div>
-                <button type="button" class="text-lg leading-none opacity-60 hover:opacity-100" onclick="this.closest('[role=alert]').remove()" aria-label="Dismiss notification">&times;</button>
-            </div>
-            {% endif %}
-
             <!-- TAB 1: DASHBOARD OVERVIEW -->
             <section id="tab-dashboard" class="tab-content space-y-8">
                 <!-- Metric Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                     <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                        <div id="notification-host-dashboard" class="notification-host"></div>
                         <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Enrolled</p>
                         <p class="text-3xl font-extrabold text-slate-800 mt-2">{{ metrics.total_students }}</p>
                     </div>
@@ -182,27 +196,28 @@
             </section>
 
             <!-- TAB 2: STUDENTS DETAIL -->
-            <section id="tab-students" class="tab-content hidden min-h-[calc(100vh-10rem)] space-y-8">
+            <section id="tab-students" class="tab-content hidden space-y-4">
                 <div class="flex justify-center">
                     <div class="inline-flex rounded-xl bg-slate-100 border border-slate-200 p-1" role="tablist" aria-label="Student detail views">
                         <button type="button" id="student-view-register" role="tab" aria-selected="true" onclick="switchStudentView('register')" class="student-view-button rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-[#1E345B] shadow-sm transition">Register Student</button>
                         <button type="button" id="student-view-directory" role="tab" aria-selected="false" onclick="switchStudentView('directory')" class="student-view-button rounded-lg px-5 py-2.5 text-sm font-semibold text-slate-500 transition hover:text-slate-800">Enrolled Directory</button>
                     </div>
                 </div>
-                <div id="student-register-panel" class="w-full">
-                <div class="grid grid-cols-1 gap-6 items-start">
+                <div id="student-register-panel" class="w-full overflow-visible">
+                <div class="grid grid-cols-1 gap-4 items-start">
                     <!-- Left Column: Forms -->
                     <div class="contents">
                         <!-- Register Student Profile & Face Data -->
-                        <div id="student-register-step" class="w-full max-w-4xl mx-auto bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                            <div class="flex items-center justify-between gap-4 mb-5">
+                        <div id="student-register-step" class="w-full max-w-4xl mx-auto bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+                            <div id="notification-host-register" class="notification-host"></div>
+                            <div class="flex items-center justify-between gap-4 mb-3">
                                 <h2 class="text-lg font-bold text-slate-900">Register Student Profile & Face Data</h2>
                                 <button type="button" onclick="switchTab('dashboard')" class="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition" aria-label="Back to dashboard">
                                     <svg aria-hidden="true" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 18l-6-6 6-6"/></svg>
                                     Back
                                 </button>
                             </div>
-                            <form id="register-student-form" action="/api/students" method="post" enctype="multipart/form-data" class="space-y-4" data-existing-lcids='{{ students | map(attribute="lcid") | list | tojson }}' onsubmit="return validateStudentLcid(this);">
+                            <form id="register-student-form" action="/api/students" method="post" enctype="multipart/form-data" class="space-y-3" data-existing-lcids='{{ students | map(attribute="lcid") | list | tojson }}' onsubmit="return validateStudentLcid(this);">
                                 <div>
                                     <label class="block text-xs font-semibold text-slate-600 mb-1">Full Name</label>
                                     <input type="text" name="name" required class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#1E345B] outline-none">
@@ -224,19 +239,14 @@
                                     <input type="file" name="profile_file" accept="image/jpeg,image/png,image/webp" required class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
                                     <p class="mt-1 text-[11px] text-slate-500">Appears in Visual Data column.</p>
                                 </div>
-                                <div id="student-alert" hidden class="relative items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-center text-amber-900" role="alert">
-                                    <button type="button" class="absolute right-3 top-2 text-lg leading-none opacity-60 hover:opacity-100" onclick="this.closest('[role=alert]').hidden = true" aria-label="Dismiss notification">&times;</button>
-                                    <p id="student-alert-title" class="font-semibold"></p>
-                                    <p id="student-alert-message" class="mt-0.5 text-sm"></p>
-                                </div>
                                 <button type="submit" class="w-full bg-[#1E345B] text-white font-semibold py-2.5 rounded-lg text-sm hover:bg-[#14233f] transition">Save Student Profile</button>
                             </form>
                         </div>
 
                         <!-- Manual Attendance Entry -->
-                        <div id="student-attendance-step" class="w-full max-w-4xl mx-auto bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                        <div id="student-attendance-step" class="w-full max-w-4xl mx-auto bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
                             <h2 class="text-lg font-bold mb-4 text-slate-900">Manual Attendance Entry</h2>
-                            <form action="/api/attendance/entry" method="post" class="space-y-4">
+                            <form action="/api/attendance/entry" method="post" class="space-y-3">
                                 <div>
                                     <label class="block text-xs font-semibold text-slate-600 mb-1">Select Student</label>
                                     <select name="student_id" required class="w-full border rounded-lg px-3 py-2 text-sm outline-none">
@@ -258,13 +268,20 @@
                 </div>
                 </div>
                 <div id="student-directory-panel" hidden class="w-full">
-                    <div class="min-h-[calc(100vh-12rem)] w-full bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-6 flex flex-col">
+                    <div class="w-full bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-6 flex flex-col">
+                        <div id="notification-host-directory" class="notification-host"></div>
                         <div class="flex items-center justify-between mb-4">
                             <div>
                                 <h2 class="text-lg font-bold text-slate-900">Enrolled Students Directory</h2>
                                 <p class="text-sm text-slate-500 mt-1">Browse registered student profiles and LCIDs.</p>
                             </div>
-                            <button type="button" onclick="switchStudentView('register')" class="text-sm font-semibold text-[#1E345B] hover:text-[#14233f]">Add student</button>
+                            <div class="flex items-center gap-3">
+                                <label class="relative block" aria-label="Search students by name or LCID">
+                                    <svg aria-hidden="true" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" stroke-width="2"/><path stroke-linecap="round" stroke-width="2" d="m20 20-4-4"/></svg>
+                                    <input id="directory-search" type="search" placeholder="Search name or LCID" oninput="filterStudentRows('directory', this.value)" class="w-44 rounded-lg border border-slate-300 bg-white py-2 pl-9 pr-3 text-xs outline-none focus:border-[#1E345B] focus:ring-2 focus:ring-[#1E345B]/20 sm:w-56">
+                                </label>
+                                <button type="button" onclick="switchStudentView('register')" class="text-sm font-semibold text-[#1E345B] hover:text-[#14233f]">Add student</button>
+                            </div>
                         </div>
                         <div class="min-h-0 flex-1 overflow-x-auto rounded-xl border border-slate-100">
                             <table class="min-w-full text-left text-sm">
@@ -273,13 +290,14 @@
                                 </thead>
                                 <tbody class="divide-y">
                                     {% for student in students %}
-                                    <tr class="hover:bg-slate-50">
+                                    <tr class="student-directory-row hover:bg-slate-50" data-search="{{ student.name }} {{ student.lcid }}">
                                         <td class="py-5 px-5">{% if student.profile_image_path or student.face_image_path %}<button type="button" class="group block" onclick="openProfilePreview(this)" data-name="{{ student.name }}" data-image="/static/{{ student.profile_image_path or student.face_image_path }}" aria-label="View {{ student.name }} profile photo"><img src="/static/{{ student.profile_image_path or student.face_image_path }}" alt="{{ student.name }} profile photo" class="w-14 h-14 object-cover rounded-full border-2 border-slate-200 group-hover:border-[#1E345B] group-focus:ring-2 group-focus:ring-[#1E345B]"></button>{% else %}<div class="w-14 h-14 bg-slate-200 rounded-full flex items-center justify-center text-xs text-slate-500">N/A</div>{% endif %}</td>
                                         <td class="py-5 px-5 font-semibold text-slate-800">{{ student.name }}</td>
                                         <td class="py-5 px-5 font-mono text-xs text-slate-600">{{ student.lcid }}</td>
                                         <td class="py-5 px-5"><div class="flex items-center justify-between gap-4">{% if student_attendance_status.get(student.id) == 'DETECTED' %}<span class="inline-flex px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">✓ Verified</span>{% elif student_attendance_status.get(student.id) == 'NOT_DETECTED' %}<span class="inline-flex px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-100 text-rose-800">⚠ Proxy</span>{% else %}<span class="inline-flex px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700">Enrolled</span>{% endif %}<form action="/api/students/{{ student.id }}/delete" method="post" onsubmit="return openDeleteConfirmation(event, this, 'Delete this student?', 'This permanently removes the student profile, face data, photo, and all attendance records. This action cannot be undone.');"><input type="hidden" name="return_page" value="students_directory"><button type="submit" class="inline-flex items-center gap-1.5 rounded-lg border border-rose-200 px-2.5 py-1.5 text-xs font-semibold text-rose-700 hover:bg-rose-50" aria-label="Delete {{ student.name }}"><svg aria-hidden="true" class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 7h12m-9 0V5a1 1 0 011 1v1m2 0v12a1 1 0 01-1 1H9a1 1 0 01-1-1V7m-2 0h12"/></svg>Delete</button></form></div></td>
                                     </tr>
                                     {% else %}<tr><td colspan="4" class="text-center py-6 text-slate-400">No students registered yet.</td></tr>{% endfor %}
+                                    <tr id="directory-search-empty" hidden><td colspan="4" class="text-center py-6 text-slate-400">No students match your search.</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -291,7 +309,14 @@
             <section id="tab-attendance" class="tab-content hidden space-y-8">
                 <!-- Attendance Log & Verification Status -->
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-                    <h2 class="text-lg font-bold mb-4 text-slate-900">Attendance Log & Verification Status</h2>
+                    <div id="notification-host-attendance" class="notification-host"></div>
+                    <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+                        <h2 class="text-lg font-bold text-slate-900">Attendance Log & Verification Status</h2>
+                        <label class="relative block" aria-label="Search attendance by name or LCID">
+                            <svg aria-hidden="true" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" stroke-width="2"/><path stroke-linecap="round" stroke-width="2" d="m20 20-4-4"/></svg>
+                            <input id="attendance-search" type="search" placeholder="Search name or LCID" oninput="filterStudentRows('attendance', this.value)" class="w-44 rounded-lg border border-slate-300 bg-white py-2 pl-9 pr-3 text-xs outline-none focus:border-[#1E345B] focus:ring-2 focus:ring-[#1E345B]/20 sm:w-56">
+                        </label>
+                    </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-sm">
                             <thead class="bg-slate-50 text-slate-500 text-xs uppercase border-b">
@@ -317,7 +342,7 @@
                             </thead>
                             <tbody id="attendance-table-body" class="divide-y">
                                 {% for log in attendances %}
-                                <tr class="attendance-row hover:bg-slate-50" data-verification-status="{{ log.verification_status or 'PENDING' }}">
+                                <tr class="attendance-row hover:bg-slate-50" data-verification-status="{{ log.verification_status or 'PENDING' }}" data-search="{{ log.student.name if log.student else '' }} {{ log.student.lcid if log.student else '' }}">
                                     <td class="py-3 px-4">
                                         <div class="font-semibold text-slate-800">
                                             {{ log.student.name if log.student else 'Unknown Student' }}
@@ -360,6 +385,9 @@
                                     <td colspan="4" class="text-center py-6 text-slate-400">No attendance entries recorded yet.</td>
                                 </tr>
                                 {% endfor %}
+                                <tr id="attendance-search-empty" hidden>
+                                    <td colspan="4" class="text-center py-6 text-slate-400">No attendance records match your search.</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -368,9 +396,10 @@
             </section>
 
             <!-- TAB 4: CCTV VERIFICATION -->
-            <section id="tab-cctv" class="tab-content hidden min-h-[calc(100vh-10rem)] space-y-8">
-                <div class="w-full max-w-4xl mx-auto bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200">
-                    <div class="flex items-start gap-4 mb-6">
+            <section id="tab-cctv" class="tab-content hidden space-y-4">
+                <div class="w-full max-w-4xl mx-auto bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <div id="notification-host-attendance-cctv" class="notification-host"></div>
+                    <div class="flex items-start gap-4 mb-4">
                         <div class="h-11 w-11 shrink-0 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center">
                             <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
                         </div>
@@ -379,7 +408,7 @@
                             <p class="mt-1 text-sm text-slate-500">Use this laptop webcam to verify faces against the enrolled student face data.</p>
                         </div>
                     </div>
-                    <div class="space-y-5">
+                    <div class="space-y-4">
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 mb-1">Target Date</label>
                             <input id="webcam-date" type="date" value="{{ metrics.today }}" required class="w-full border rounded-lg px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-[#1E345B]">
@@ -634,10 +663,12 @@
             if (tabId === 'students') switchStudentStep('register');
             if (tabId === 'cctv') startWebcamVerification();
 
+            resetPageScroll();
+
             // Update Header Title dynamically
             const titleMap = {
                 'dashboard': 'Dashboard Overview',
-                'students': 'Students Detail & Registration',
+                'students': 'Students Detail',
                 'attendance': 'Attendance Records & Logs',
                 'staff': 'Teaching & Security Staff Directory',
                 'support': 'System Help & Technical Support'
@@ -664,6 +695,107 @@
             directoryButton.classList.toggle('text-[#1E345B]', isDirectory);
             directoryButton.classList.toggle('shadow-sm', isDirectory);
             directoryButton.classList.toggle('text-slate-500', !isDirectory);
+            resetPageScroll();
+        }
+
+        function resetPageScroll() {
+            window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
+            document.querySelector('main')?.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+            document.getElementById('sidebar')?.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+        }
+
+        const notificationQueue = [];
+        let activeNotification = null;
+
+        function showNotification(title, message, type = 'info', target = 'dashboard') {
+            notificationQueue.push({ title, message, type, target });
+            renderNextNotification();
+        }
+
+        function renderNextNotification() {
+            if (activeNotification || notificationQueue.length === 0) return;
+
+            const notification = notificationQueue.shift();
+            const root = document.getElementById(`notification-host-${notification.target}`) || document.getElementById('notification-host-dashboard');
+            if (!root) return;
+            const toast = document.createElement('div');
+            const isAlert = notification.type === 'error' || notification.type === 'warning';
+            const styles = {
+                success: {
+                    icon: '<svg aria-hidden="true" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m5 12 4 4L19 6"/></svg>',
+                    color: 'text-emerald-600',
+                    border: 'border-emerald-200',
+                    background: 'bg-emerald-50',
+                    text: 'text-emerald-900'
+                },
+                error: {
+                    icon: '<svg aria-hidden="true" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 6l12 12M18 6 6 18"/></svg>',
+                    color: 'text-rose-600',
+                    border: 'border-rose-200',
+                    background: 'bg-rose-50',
+                    text: 'text-rose-900'
+                },
+                warning: {
+                    icon: '<svg aria-hidden="true" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v4m0 4h.01M10.3 3.7 2.8 17a2 2 0 0 0 1.74 3h14.92a2 2 0 0 0 1.74-3L13.7 3.7a2 2 0 0 0-3.4 0Z"/></svg>',
+                    color: 'text-amber-600',
+                    border: 'border-amber-200',
+                    background: 'bg-amber-50',
+                    text: 'text-amber-900'
+                },
+                info: {
+                    icon: '<svg aria-hidden="true" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke-width="2"/><path stroke-linecap="round" stroke-width="2" d="M12 11v5m0-8h.01"/></svg>',
+                    color: 'text-[#1E345B]',
+                    border: 'border-slate-200',
+                    background: 'bg-slate-50',
+                    text: 'text-slate-900'
+                }
+            }[notification.type] || null;
+            const appearance = styles || {
+                icon: '',
+                color: 'text-slate-600',
+                border: 'border-slate-200',
+                background: 'bg-slate-50',
+                text: 'text-slate-900'
+            };
+
+            toast.className = `app-toast rounded-xl border ${appearance.border} ${appearance.background} ${appearance.text} px-4 py-3 shadow-2xl`;
+            toast.setAttribute('role', isAlert ? 'alert' : 'status');
+            toast.setAttribute('aria-live', isAlert ? 'assertive' : 'polite');
+            toast.innerHTML = `
+                <div class="flex items-start gap-3">
+                    <span class="mt-0.5 shrink-0 ${appearance.color}">${appearance.icon}</span>
+                    <div class="min-w-0 flex-1">
+                        <p class="font-semibold"></p>
+                        <p class="mt-0.5 text-sm text-slate-600"></p>
+                    </div>
+                    <button type="button" class="shrink-0 text-lg leading-none text-slate-400 hover:text-slate-700" aria-label="Dismiss notification">&times;</button>
+                </div>`;
+            toast.querySelector('p').textContent = notification.title || notification.message;
+            toast.querySelectorAll('p')[1].textContent = notification.title ? notification.message : '';
+
+            const dismissButton = toast.querySelector('button');
+            let dismissTimer;
+            let removed = false;
+            const dismiss = () => {
+                if (removed) return;
+                removed = true;
+                window.clearTimeout(dismissTimer);
+                toast.classList.remove('is-visible');
+                toast.classList.add('is-leaving');
+                window.setTimeout(() => {
+                    toast.remove();
+                    activeNotification = null;
+                    renderNextNotification();
+                }, 220);
+            };
+
+            dismissButton.addEventListener('click', dismiss);
+            root.appendChild(toast);
+            activeNotification = toast;
+            requestAnimationFrame(() => toast.classList.add('is-visible'));
+            dismissTimer = window.setTimeout(dismiss, 3000);
         }
 
         function switchStudentStep(step) {
@@ -680,7 +812,7 @@
 
             switchStudentView('register');
             Object.entries(stepCards).forEach(([name, card]) => {
-                card.hidden = name !== step;
+                if (card) card.hidden = name !== step;
             });
         }
 
@@ -690,22 +822,17 @@
             const existingLcids = JSON.parse(form.dataset.existingLcids || '[]');
 
             if (existingLcids.includes(lcid)) {
-                showStudentAlert(
+                showNotification(
                     'LCID already registered',
-                    'This LCID is already assigned to an enrolled student. Please enter a different LCID.'
+                    'This LCID is already assigned to an enrolled student. Please enter a different LCID.',
+                    'warning',
+                    'register'
                 );
                 form.elements.lcid_suffix.focus();
                 return false;
             }
 
             return true;
-        }
-
-        function showStudentAlert(title, message) {
-            const alert = document.getElementById('student-alert');
-            alert.querySelector('#student-alert-title').textContent = title;
-            alert.querySelector('#student-alert-message').textContent = message;
-            alert.hidden = false;
         }
 
         function filterAttendanceStatus(status) {
@@ -732,6 +859,24 @@
             } else if (emptyRow) {
                 emptyRow.hidden = true;
             }
+        }
+
+        function filterStudentRows(section, query) {
+            const isDirectory = section === 'directory';
+            const rowSelector = isDirectory ? '.student-directory-row' : '.attendance-row';
+            const emptyId = isDirectory ? 'directory-search-empty' : 'attendance-search-empty';
+            const rows = Array.from(document.querySelectorAll(rowSelector));
+            const normalizedQuery = query.trim().toLowerCase();
+            let visibleRows = 0;
+
+            rows.forEach(row => {
+                const matches = !normalizedQuery || (row.dataset.search || '').toLowerCase().includes(normalizedQuery);
+                row.hidden = !matches;
+                if (matches) visibleRows += 1;
+            });
+
+            const emptyRow = document.getElementById(emptyId);
+            if (emptyRow) emptyRow.hidden = visibleRows !== 0 || !normalizedQuery;
         }
 
         let webcamStream = null;
@@ -865,7 +1010,51 @@
             const statusBadge = card.querySelector('.staff-status');
             statusBadge.textContent = status;
             statusBadge.className = 'staff-status rounded-full px-2.5 py-1 text-xs font-semibold ' + (status === 'Active' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600');
+            saveStaffDirectory();
             closeStaffModal();
+        }
+
+        const staffStorageKey = 'antiProxyStaffDirectory';
+
+        function saveStaffDirectory() {
+            const records = Array.from(document.querySelectorAll('#staff-grid .staff-card')).map(card => ({
+                name: card.querySelector('.staff-name').textContent.trim(),
+                position: card.querySelector('.staff-position').textContent.trim(),
+                department: card.querySelector('.staff-department').textContent.trim(),
+                contact: card.querySelector('.staff-contact').textContent.trim(),
+                status: card.querySelector('.staff-status').textContent.trim()
+            }));
+            localStorage.setItem(staffStorageKey, JSON.stringify(records));
+        }
+
+        function applyStaffStatus(card, status) {
+            const statusBadge = card.querySelector('.staff-status');
+            statusBadge.textContent = status;
+            statusBadge.className = 'staff-status rounded-full px-2.5 py-1 text-xs font-semibold ' + (status === 'Active' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600');
+        }
+
+        function restoreStaffDirectory() {
+            const storedRecords = localStorage.getItem(staffStorageKey);
+            if (!storedRecords) return;
+
+            try {
+                const records = JSON.parse(storedRecords);
+                const cards = Array.from(document.querySelectorAll('#staff-grid .staff-card'));
+                records.forEach((record, index) => {
+                    let card = cards[index];
+                    if (!card) {
+                        document.getElementById('staff-grid').insertAdjacentHTML('beforeend', '<article class="staff-card rounded-xl border border-slate-200 bg-slate-50 p-5 transition hover:-translate-y-0.5 hover:border-[#1E345B]/40 hover:shadow-md"><div class="flex items-start justify-between gap-3"><div><h3 class="staff-name font-bold text-slate-900"></h3><p class="staff-position mt-1 text-sm text-slate-500"></p></div><div class="flex items-center gap-2"><span class="staff-status rounded-full px-2.5 py-1 text-xs font-semibold"></span><button type="button" onclick="editStaffMember(this.closest(\'.staff-card\'))" class="text-xs font-semibold text-[#1E345B] hover:underline">Edit</button></div></div><dl class="mt-5 space-y-3 text-sm"><div class="flex items-start justify-between gap-4"><dt class="text-slate-400">Department</dt><dd class="staff-department text-right font-medium text-slate-700"></dd></div><div class="flex items-start justify-between gap-4"><dt class="text-slate-400">Contact</dt><dd class="staff-contact break-all text-right font-mono text-xs text-slate-700"></dd></div></dl></article>');
+                        card = document.querySelectorAll('#staff-grid .staff-card')[index];
+                    }
+                    card.querySelector('.staff-name').textContent = record.name || '';
+                    card.querySelector('.staff-position').textContent = record.position || '';
+                    card.querySelector('.staff-department').textContent = record.department || '';
+                    card.querySelector('.staff-contact').textContent = record.contact || '';
+                    applyStaffStatus(card, record.status === 'Active' ? 'Active' : 'Offline');
+                });
+            } catch (error) {
+                localStorage.removeItem(staffStorageKey);
+            }
         }
 
         // Admin Modal Functions
@@ -955,6 +1144,8 @@
             closeStaffModal();
         });
 
+        restoreStaffDirectory();
+
         const initialActiveTab = '{{ active_tab }}';
         const initialStudentStep = '{{ student_step }}';
         if (initialActiveTab === 'students') {
@@ -965,12 +1156,13 @@
         }
         window.history.replaceState({}, '', '/dashboard');
 
-        {% if notification and notification.title == 'Face not detected' %}
-        window.setTimeout(() => window.location.reload(), 2500);
-        {% endif %}
-
         {% if notification %}
-        window.setTimeout(() => document.getElementById('global-notification')?.remove(), 2000);
+        showNotification(
+            {{ notification.title | tojson }},
+            {{ notification.message | tojson }},
+            {{ notification.type | tojson }},
+            {{ (notification.target or 'dashboard') | tojson }}
+        );
         {% endif %}
     </script>
 </body>
